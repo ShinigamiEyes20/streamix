@@ -1,12 +1,19 @@
 export default async function handler(req, res) {
-  const requestUrl = new URL(req.url, `https://${req.headers.host || "localhost"}`);
+  const requestUrl = new URL(
+    req.url,
+    `https://${req.headers.host || "localhost"}`,
+  );
   const requestedPath = requestUrl.searchParams.get("path") || "configuration";
   const path = requestedPath.replace(/^\/+/, "");
   const queryString = new URLSearchParams(requestUrl.searchParams);
   queryString.delete("path");
   const token = process.env.TMDB_READ_ACCESS_TOKEN;
 
-  if (req.method !== "GET" && req.method !== "POST" && req.method !== "OPTIONS") {
+  if (
+    req.method !== "GET" &&
+    req.method !== "POST" &&
+    req.method !== "OPTIONS"
+  ) {
     return res.status(405).json({
       success: false,
       status_code: 405,
@@ -17,7 +24,10 @@ export default async function handler(req, res) {
   if (req.method === "OPTIONS") {
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization",
+    );
     return res.status(204).end();
   }
 

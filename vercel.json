@@ -6,7 +6,11 @@
   },
   "routes": [
     {
-      "src": "/api/(.*)",
+      "src": "/api/([^/]+)/(.*)",
+      "dest": "/api/index.js?path=$1/$2"
+    },
+    {
+      "src": "/api/([^/]+)",
       "dest": "/api/index.js?path=$1"
     },
     {
