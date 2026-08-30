@@ -6,6 +6,22 @@
   },
   "routes": [
     {
+      "src": "/api/movie/now_playing",
+      "dest": "/api/index.js?path=movie/now_playing"
+    },
+    {
+      "src": "/api/trending/movie/week",
+      "dest": "/api/index.js?path=trending/movie/week"
+    },
+    {
+      "src": "/api/trending/tv/week",
+      "dest": "/api/index.js?path=trending/tv/week"
+    },
+    {
+      "src": "/api/genre/movie/list",
+      "dest": "/api/index.js?path=genre/movie/list"
+    },
+    {
       "src": "/api/([^/]+)/(.*)",
       "dest": "/api/index.js?path=$1/$2"
     },
