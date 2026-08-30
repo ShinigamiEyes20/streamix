@@ -1,6 +1,6 @@
 .banner-slider {
   position: relative;
-  height: clamp(280px, 45vw, 500px);
+  height: clamp(380px, 40vw, 420px);
   overflow: hidden;
   background: var(--netflix-gradient);
   margin-top: 4rem;
