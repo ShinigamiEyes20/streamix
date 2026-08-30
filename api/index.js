@@ -1,16 +1,12 @@
-export const config = {
-  runtime: "nodejs20.x",
-};
-
 export default async function handler(req, res) {
-  const { method } = req;
-  const url = new URL(req.url, `https://${req.headers.host || "localhost"}`);
-  const pathname = url.pathname.replace(/^\/api\//, "/");
-  const path = pathname.replace(/^\//, "");
-  const queryString = url.search;
+  const requestUrl = new URL(req.url, `https://${req.headers.host || "localhost"}`);
+  const requestedPath = requestUrl.searchParams.get("path") || "configuration";
+  const path = requestedPath.replace(/^\/+/, "");
+  const queryString = new URLSearchParams(requestUrl.searchParams);
+  queryString.delete("path");
   const token = process.env.TMDB_READ_ACCESS_TOKEN;
 
-  if (method !== "GET" && method !== "POST" && method !== "OPTIONS") {
+  if (req.method !== "GET" && req.method !== "POST" && req.method !== "OPTIONS") {
     return res.status(405).json({
       success: false,
       status_code: 405,
@@ -18,13 +14,10 @@ export default async function handler(req, res) {
     });
   }
 
-  if (method === "OPTIONS") {
+  if (req.method === "OPTIONS") {
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-    res.setHeader(
-      "Access-Control-Allow-Headers",
-      "Content-Type, Authorization",
-    );
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
     return res.status(204).end();
   }
 
@@ -34,11 +27,12 @@ export default async function handler(req, res) {
     });
   }
 
-  const upstreamUrl = `https://api.themoviedb.org/3/${path || "configuration"}${queryString}`;
+  const query = queryString.toString();
+  const upstreamUrl = `https://api.themoviedb.org/3/${path}${query ? `?${query}` : ""}`;
 
   try {
     const response = await fetch(upstreamUrl, {
-      method,
+      method: req.method,
       headers: {
         Accept: "application/json",
         Authorization: `Bearer ${token}`,
@@ -55,10 +49,9 @@ export default async function handler(req, res) {
       .status(response.status)
       .json(typeof data === "string" ? { message: data } : data);
   } catch (error) {
+    console.error("TMDB proxy request failed:", error.message);
     return res.status(500).json({
-      success: false,
-      status_code: 500,
-      status_message: `TMDb proxy error: ${error.message}`,
+      error: "TMDB proxy request failed",
     });
   }
 }
