@@ -10,6 +10,7 @@ const TVShows = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Initialize filters from URL or defaults
@@ -50,10 +51,12 @@ const TVShows = () => {
   const fetchTVShows = async () => {
     try {
       setLoading(true);
+      setError(null);
       const results = await fetchDiscoverTV(filters);
       setTvShows(results);
-    } catch (error) {
-      console.error("Failed to fetch TV shows:", error);
+    } catch (err) {
+      console.error("Failed to fetch TV shows:", err);
+      setError(err?.message || "Unable to load TV shows right now. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -99,6 +102,20 @@ const TVShows = () => {
       <div className="loading-screen">
         <div className="loading-spinner"></div>
         <p>Loading TV shows...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="error-page">
+        <div className="error-content">
+          <h1>Unable to load TV shows</h1>
+          <p>{error}</p>
+          <button className="back-home-btn" onClick={fetchTVShows}>
+            Try Again
+          </button>
+        </div>
       </div>
     );
   }

@@ -7,7 +7,7 @@ import Sitemap from "vite-plugin-sitemap";
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   const siteUrl = env.VITE_SITE_URL || "https://streamix.vercel.app";
-  const tmdbToken = env.TMDB_READ_ACCESS_TOKEN || env.VITE_TMDB_READ_ACCESS_TOKEN;
+  const tmdbToken = env.TMDB_READ_ACCESS_TOKEN;
 
   return {
     plugins: [

@@ -16,6 +16,7 @@ const Home = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [timeWindow, setTimeWindow] = useState("week");
 
   const {
@@ -41,6 +42,7 @@ const Home = () => {
   const initializeData = async () => {
     try {
       setLoading(true);
+      setError(null);
       const [movies, tvShows, anime, nowPlaying] = await Promise.all([
         fetchTrending("movie", timeWindow),
         fetchTrending("tv", timeWindow),
@@ -52,8 +54,11 @@ const Home = () => {
       setTrendingTV(tvShows);
       setTrendingAnime(anime);
       setNowPlayingMovies(nowPlaying);
-    } catch (error) {
-      console.error("Failed to initialize data:", error);
+    } catch (err) {
+      console.error("Failed to initialize data:", err);
+      setError(
+        err?.message || "Unable to load Streamix content right now. Please try again.",
+      );
     } finally {
       setLoading(false);
     }
@@ -126,6 +131,20 @@ const Home = () => {
       <div className="loading-screen">
         <div className="loading-spinner" />
         <p>Loading Streamix...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="error-page">
+        <div className="error-content">
+          <h1>Unable to load content</h1>
+          <p>{error}</p>
+          <button className="back-home-btn" onClick={initializeData}>
+            Try Again
+          </button>
+        </div>
       </div>
     );
   }

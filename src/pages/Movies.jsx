@@ -9,6 +9,7 @@ const Movies = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Initialize filters from URL or defaults
@@ -49,10 +50,12 @@ const Movies = () => {
   const fetchMovies = async () => {
     try {
       setLoading(true);
+      setError(null);
       const results = await fetchDiscoverMovies(filters);
       setMovies(results);
-    } catch (error) {
-      console.error("Failed to fetch movies:", error);
+    } catch (err) {
+      console.error("Failed to fetch movies:", err);
+      setError(err?.message || "Unable to load movies right now. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -98,6 +101,20 @@ const Movies = () => {
       <div className="loading-screen">
         <div className="loading-spinner"></div>
         <p>Loading movies...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="error-page">
+        <div className="error-content">
+          <h1>Unable to load movies</h1>
+          <p>{error}</p>
+          <button className="back-home-btn" onClick={fetchMovies}>
+            Try Again
+          </button>
+        </div>
       </div>
     );
   }

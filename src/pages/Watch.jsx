@@ -18,6 +18,7 @@ const Watch = () => {
   const [contentInfo, setContentInfo] = useState(null);
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [pageError, setPageError] = useState(null);
 
   const { fetchMovieRecommendations, fetchTVRecommendations, POSTER_URL } = useTMDB();
 
@@ -63,13 +64,17 @@ const Watch = () => {
   const fetchContentData = async () => {
     try {
       setLoading(true);
-      
-      // Fetch basic content info
+      setPageError(null);
+
       const contentRes = await fetch(`/api/${type}/${id}`);
+      if (!contentRes.ok) {
+        const errorText = await contentRes.text();
+        throw new Error(`HTTP error! status: ${contentRes.status}, response: ${errorText}`);
+      }
+
       const contentData = await contentRes.json();
       setContentInfo(contentData);
 
-      // Fetch recommendations
       await fetchRecommendations();
 
       if (type === 'tv') {
@@ -77,6 +82,7 @@ const Watch = () => {
       }
     } catch (error) {
       console.error('Failed to fetch content data:', error);
+      setPageError(error?.message || 'Unable to load this title right now.');
     } finally {
       setLoading(false);
     }
@@ -143,6 +149,20 @@ const Watch = () => {
       <div className="watch-loading">
         <div className="loading-spinner"></div>
         <p>Loading player...</p>
+      </div>
+    );
+  }
+
+  if (pageError) {
+    return (
+      <div className="watch-error">
+        <div className="error-content">
+          <h1>Unable to load content</h1>
+          <p>{pageError}</p>
+          <button className="back-home-btn" onClick={fetchContentData}>
+            Try Again
+          </button>
+        </div>
       </div>
     );
   }

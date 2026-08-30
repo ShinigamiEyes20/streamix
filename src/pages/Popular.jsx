@@ -9,6 +9,7 @@ const Popular = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Initialize filters from URL or defaults
@@ -57,8 +58,8 @@ const Popular = () => {
   const fetchMovies = async () => {
     try {
       setLoading(true);
+      setError(null);
       const url = buildUrl('/movie/popular', filters);
-      console.log('Fetching popular movies from:', url);
 
       const res = await fetch(url);
 
@@ -69,8 +70,9 @@ const Popular = () => {
 
       const data = await res.json();
       setMovies(data.results || []);
-    } catch (error) {
-      console.error("Failed to fetch popular movies:", error);
+    } catch (err) {
+      console.error("Failed to fetch popular movies:", err);
+      setError(err?.message || "Unable to load popular movies right now. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -115,6 +117,20 @@ const Popular = () => {
       <div className="loading-screen">
         <div className="loading-spinner"></div>
         <p>Loading popular movies...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="error-page">
+        <div className="error-content">
+          <h1>Unable to load popular movies</h1>
+          <p>{error}</p>
+          <button className="back-home-btn" onClick={fetchMovies}>
+            Try Again
+          </button>
+        </div>
       </div>
     );
   }
