@@ -1,0 +1,16 @@
+warning: in the working copy of 'src/pages/Home.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/pages/Movies.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/pages/Popular.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/pages/TVShows.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/pages/Watch.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/styles/components.css', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/styles/pages.css', LF will be replaced by CRLF the next time Git touches it
+ api/index.js              |   6 [32m+[m[31m-[m
+ src/pages/Home.jsx        |   3 [32m+[m[31m-[m
+ src/pages/Movies.jsx      | 130 [32m+++++++[m[31m------[m
+ src/pages/Popular.jsx     | 126 [32m+++++++[m[31m------[m
+ src/pages/TVShows.jsx     | 129 [32m+++++++[m[31m------[m
+ src/pages/Watch.jsx       | 165 [32m+++++++++[m[31m-------[m
+ src/styles/components.css | 466 [32m+++++++++++++++++++++++++++++[m[31m-----------------[m
+ src/styles/pages.css      | 304 [32m+++++++++++++++++[m[31m-------------[m
+ 8 files changed, 801 insertions(+), 528 deletions(-)

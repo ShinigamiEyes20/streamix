@@ -36,9 +36,7 @@ export default async function handler(req, res) {
     });
   }
 
-  const upstreamUrl = new URL(
-    `https://api.themoviedb.org/3/${normalizedPath}`,
-  );
+  const upstreamUrl = new URL(`https://api.themoviedb.org/3/${normalizedPath}`);
   Object.entries(req.query || {}).forEach(([key, value]) => {
     if (key === "path") return;
     const values = Array.isArray(value) ? value : [value];

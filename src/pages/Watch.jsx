@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useTMDB } from '../hooks/useTMDB';
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useTMDB } from "../hooks/useTMDB";
 
 const Watch = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
-  
-  const type = searchParams.get('type');
-  const id = searchParams.get('id');
-  
+
+  const type = searchParams.get("type");
+  const id = searchParams.get("id");
+
   const [currentServer, setCurrentServer] = useState(0);
   const [currentSeason, setCurrentSeason] = useState(1);
   const [currentEpisode, setCurrentEpisode] = useState(1);
@@ -19,38 +19,47 @@ const Watch = () => {
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pageError, setPageError] = useState(null);
+  const [serverError, setServerError] = useState(null);
 
-  const { fetchMovieRecommendations, fetchTVRecommendations, POSTER_URL } = useTMDB();
+  const { fetchMovieRecommendations, fetchTVRecommendations, POSTER_URL } =
+    useTMDB();
 
   const servers = [
-    { 
-      name: 'Server 1', 
-      getUrl: (s, e) => `https://vidsrc.to/embed/${type}/${id}/${type === 'tv' ? `${s}-${e}` : ''}` 
+    {
+      name: "Server 1",
+      getUrl: (s, e) =>
+        `https://www.2embed.cc/embed/${type}/${id}${type === "tv" ? `/${s}/${e}` : ""}`,
     },
-    { 
-      name: 'Server 2', 
-      getUrl: (s, e) => `https://vidsrc.net/embed/${type}/?tmdb=${id}${type === 'tv' ? `&season=${s}&episode=${e}` : ''}` 
+    {
+      name: "Server 2",
+      getUrl: (s, e) =>
+        `https://vidsrc.to/embed/${type}/${id}/${type === "tv" ? `${s}-${e}` : ""}`,
     },
-    { 
-      name: 'Server 3', 
-      getUrl: (s, e) => `https://player.videasy.net/${type}/${id}${type === 'tv' ? `/${s}/${e}` : ''}` 
+    {
+      name: "Server 3",
+      getUrl: (s, e) =>
+        `https://vidsrc.net/embed/${type}/?tmdb=${id}${type === "tv" ? `&season=${s}&episode=${e}` : ""}`,
     },
-    { 
-      name: 'Server 4', 
-      getUrl: (s, e) => `https://www.2embed.cc/embed/${type}/${id}${type === 'tv' ? `/${s}/${e}` : ''}` 
+    {
+      name: "Server 4",
+      getUrl: (s, e) =>
+        `https://vidsrc.xyz/embed/${type}/${id}${type === "tv" ? `/${s}/${e}` : ""}`,
     },
-    { 
-      name: 'Server 5', 
-      getUrl: (s, e) => `https://vidlink.pro/embed/${type}/${id}${type === 'tv' ? `/${s}/${e}` : ''}` 
+    {
+      name: "Server 5",
+      getUrl: (s, e) =>
+        `https://player.videasy.net/${type}/${id}${type === "tv" ? `/${s}/${e}` : ""}`,
     },
-    { 
-      name: 'Server 6', 
-      getUrl: (s, e) => `https://vidsrc.xyz/embed/${type}/${id}${type === 'tv' ? `/${s}/${e}` : ''}` 
+    {
+      name: "Server 6",
+      getUrl: (s, e) =>
+        `https://vidlink.pro/embed/${type}/${id}${type === "tv" ? `/${s}/${e}` : ""}`,
     },
-    { 
-      name: 'Server 7', 
-      getUrl: (s, e) => `https://vidsrc.cc/v2/embed/${type}/${id}${type === 'tv' ? `/${s}/${e}` : ''}` 
-    }
+    {
+      name: "Server 7",
+      getUrl: (s, e) =>
+        `https://vidsrc.cc/v2/embed/${type}/${id}${type === "tv" ? `/${s}/${e}` : ""}`,
+    },
   ];
 
   useEffect(() => {
@@ -69,7 +78,9 @@ const Watch = () => {
       const contentRes = await fetch(`/api/${type}/${id}`);
       if (!contentRes.ok) {
         const errorText = await contentRes.text();
-        throw new Error(`HTTP error! status: ${contentRes.status}, response: ${errorText}`);
+        throw new Error(
+          `HTTP error! status: ${contentRes.status}, response: ${errorText}`,
+        );
       }
 
       const contentData = await contentRes.json();
@@ -77,12 +88,12 @@ const Watch = () => {
 
       await fetchRecommendations();
 
-      if (type === 'tv') {
+      if (type === "tv") {
         await fetchSeasons();
       }
     } catch (error) {
-      console.error('Failed to fetch content data:', error);
-      setPageError(error?.message || 'Unable to load this title right now.');
+      console.error("Failed to fetch content data:", error);
+      setPageError(error?.message || "Unable to load this title right now.");
     } finally {
       setLoading(false);
     }
@@ -91,14 +102,14 @@ const Watch = () => {
   const fetchRecommendations = async () => {
     try {
       let recommendationsData = [];
-      if (type === 'movie') {
+      if (type === "movie") {
         recommendationsData = await fetchMovieRecommendations(id);
-      } else if (type === 'tv') {
+      } else if (type === "tv") {
         recommendationsData = await fetchTVRecommendations(id);
       }
       setRecommendations(recommendationsData.slice(0, 10)); // Limit to 10 recommendations
     } catch (error) {
-      console.error('Failed to fetch recommendations:', error);
+      console.error("Failed to fetch recommendations:", error);
       setRecommendations([]);
     }
   };
@@ -115,7 +126,7 @@ const Watch = () => {
         await fetchEpisodes(validSeasons[0].season_number);
       }
     } catch (error) {
-      console.error('Failed to fetch seasons:', error);
+      console.error("Failed to fetch seasons:", error);
     }
   };
 
@@ -126,7 +137,7 @@ const Watch = () => {
       setEpisodes(data.episodes || []);
       setCurrentEpisode(1);
     } catch (error) {
-      console.error('Failed to fetch episodes:', error);
+      console.error("Failed to fetch episodes:", error);
     }
   };
 
@@ -136,7 +147,18 @@ const Watch = () => {
   };
 
   const getVideoUrl = () => {
-    return servers[currentServer].getUrl(currentSeason, currentEpisode);
+    return servers[currentServer]?.getUrl(currentSeason, currentEpisode) || "";
+  };
+
+  const handleServerError = () => {
+    const nextIndex = (currentServer + 1) % servers.length;
+    const currentName = servers[currentServer]?.name || "Current server";
+    const nextName = servers[nextIndex]?.name || "Server 1";
+
+    setServerError(
+      `${currentName} did not load correctly. Switching to ${nextName}.`,
+    );
+    setCurrentServer(nextIndex);
   };
 
   const handleRecommendationClick = (recType, recId) => {
@@ -173,10 +195,7 @@ const Watch = () => {
         <div className="error-content">
           <h1>Content Not Found</h1>
           <p>The requested content could not be loaded.</p>
-          <button 
-            className="back-home-btn"
-            onClick={() => navigate('/')}
-          >
+          <button className="back-home-btn" onClick={() => navigate("/")}>
             ← Back to Home
           </button>
         </div>
@@ -189,14 +208,11 @@ const Watch = () => {
       {/* Header */}
       <div className="watch-header">
         <div className="watch-header-content">
-          <button
-            className="back-browse-btn"
-            onClick={() => navigate('/')}
-          >
+          <button className="back-browse-btn" onClick={() => navigate("/")}>
             ← Back to Browse
           </button>
 
-          {type === 'tv' && (
+          {type === "tv" && (
             <div className="season-episode-badge">
               S{currentSeason} • E{currentEpisode}
             </div>
@@ -205,9 +221,10 @@ const Watch = () => {
       </div>
 
       <div className="breadcrumb">
-        Home &gt;&gt; {type === 'movie' ? 'Movies' : 'TV Shows'} &gt;&gt; {contentInfo?.title || contentInfo?.name}
+        Home &gt;&gt; {type === "movie" ? "Movies" : "TV Shows"} &gt;&gt;{" "}
+        {contentInfo?.title || contentInfo?.name}
       </div>
-      
+
       <div className="watch-container">
         {/* Main Content Area */}
         <div className="main-content">
@@ -220,21 +237,36 @@ const Watch = () => {
                 allowFullScreen
                 title="Video Player"
                 key={`${currentServer}-${currentSeason}-${currentEpisode}`}
+                onError={handleServerError}
+                onLoad={() => setServerError(null)}
               />
             </div>
+
+            {serverError && (
+              <div className="server-error-banner">
+                <span>{serverError}</span>
+                <button
+                  type="button"
+                  className="retry-server-btn"
+                  onClick={() => setServerError(null)}
+                >
+                  Retry
+                </button>
+              </div>
+            )}
 
             {/* Details and Server Section */}
             <div className="controls-section">
               <div className="details-section">
                 <h3 className="section-title">Details</h3>
                 <div className="content-overview">
-                  {contentInfo?.overview || 'No overview available.'}
+                  {contentInfo?.overview || "No overview available."}
                 </div>
               </div>
 
               <div className="server-dropdown-section">
                 <h3 className="section-title">Select Server</h3>
-                <select 
+                <select
                   value={currentServer}
                   onChange={(e) => setCurrentServer(Number(e.target.value))}
                   className="server-dropdown"
@@ -258,7 +290,9 @@ const Watch = () => {
                   <div
                     key={rec.id}
                     className="recommendation-item"
-                    onClick={() => handleRecommendationClick(rec.media_type || type, rec.id)}
+                    onClick={() =>
+                      handleRecommendationClick(rec.media_type || type, rec.id)
+                    }
                   >
                     <div className="recommendation-title">
                       {rec.title || rec.name}
@@ -275,17 +309,20 @@ const Watch = () => {
         </div>
 
         {/* TV Show Episodes Section */}
-        {type === 'tv' && (
+        {type === "tv" && (
           <div className="episode-section">
             <div className="season-selector">
               <label className="selector-label">Season</label>
-              <select 
-                value={currentSeason} 
+              <select
+                value={currentSeason}
                 onChange={(e) => handleSeasonChange(Number(e.target.value))}
                 className="season-dropdown"
               >
-                {seasons.map(season => (
-                  <option key={season.season_number} value={season.season_number}>
+                {seasons.map((season) => (
+                  <option
+                    key={season.season_number}
+                    value={season.season_number}
+                  >
                     {season.name} ({season.episode_count} episodes)
                   </option>
                 ))}
@@ -295,10 +332,10 @@ const Watch = () => {
             <div className="episodes-grid">
               <h4 className="episodes-title">Episodes</h4>
               <div className="episodes-list">
-                {episodes.map(episode => (
+                {episodes.map((episode) => (
                   <button
                     key={episode.episode_number}
-                    className={`episode-card ${currentEpisode === episode.episode_number ? 'active' : ''}`}
+                    className={`episode-card ${currentEpisode === episode.episode_number ? "active" : ""}`}
                     onClick={() => setCurrentEpisode(episode.episode_number)}
                   >
                     <div className="episode-number">
@@ -308,7 +345,9 @@ const Watch = () => {
                       <div className="episode-title">{episode.name}</div>
                       <div className="episode-meta">
                         {episode.runtime && (
-                          <span className="episode-runtime">{episode.runtime}m</span>
+                          <span className="episode-runtime">
+                            {episode.runtime}m
+                          </span>
                         )}
                         {episode.air_date && (
                           <span className="episode-date">

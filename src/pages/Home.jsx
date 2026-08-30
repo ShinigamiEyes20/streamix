@@ -57,7 +57,8 @@ const Home = () => {
     } catch (err) {
       console.error("Failed to initialize data:", err);
       setError(
-        err?.message || "Unable to load Streamix content right now. Please try again.",
+        err?.message ||
+          "Unable to load Streamix content right now. Please try again.",
       );
     } finally {
       setLoading(false);
