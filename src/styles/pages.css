@@ -1,14 +1,20 @@
 .banner-slider {
   position: relative;
-  height: 80vh;
+  height: clamp(280px, 45vw, 500px);
   overflow: hidden;
   background: var(--netflix-gradient);
   margin-top: 4rem;
 }
 
+@media (max-width: 1024px) {
+  .banner-slider {
+    height: clamp(260px, 50vw, 420px);
+  }
+}
+
 @media (max-width: 768px) {
   .banner-slider {
-    height: 60vh;
+    height: clamp(240px, 55vw, 340px);
   }
 }
 
@@ -62,13 +68,11 @@
 }
 
 .banner-title {
-  font-size: 3.5rem;
+  font-size: clamp(1.8rem, 4vw, 3.5rem);
   font-weight: bold;
-  margin-bottom: 1rem;
-  background: #fff;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  margin-bottom: 0.8rem;
+  color: #f8fafc;
+  line-height: 1.2;
 }
 
 .banner-meta {
@@ -89,10 +93,12 @@
 }
 
 .banner-description {
-  font-size: 1rem;
-  line-height: 1.4;
+  font-size: clamp(0.9rem, 2vw, 1rem);
+  line-height: 1.5;
   margin-bottom: 1.5rem;
+  color: #e2e8f0;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  max-width: 90%;
 }
 
 .banner-buttons {
@@ -136,12 +142,25 @@
   padding: 0 4%;
   position: relative;
   z-index: 2;
-  margin-top: -100px;
-  padding-top: 100px;
+  margin-top: -60px;
+  padding-top: 80px;
+}
+
+@media (max-width: 768px) {
+  .content-rows {
+    margin-top: -40px;
+    padding-top: 60px;
+  }
 }
 
 .row {
-  margin-bottom: 40px;
+  margin-bottom: 50px;
+}
+
+@media (max-width: 768px) {
+  .row {
+    margin-bottom: 35px;
+  }
 }
 
 .row-header {
@@ -154,18 +173,78 @@
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
+  gap: 20px;
+}
+
+.view-all-link {
+  background: none;
+  border: none;
+  color: #22d3ee;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.view-all-link:hover {
+  color: #38bdf8;
+  transform: translateX(2px);
+}
+
+.view-all-link:focus-visible {
+  outline: 2px solid #22d3ee;
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
 .row h2 {
   font-size: 1.4rem;
   font-weight: bold;
-  background: #fff;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #f8fafc;
   margin-bottom: 10px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  border-left: 3px solid #22d3ee;
+  padding-left: 12px;
+}
+
+.row-track {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 15px;
+  padding: 10px 0;
+}
+
+@media (max-width: 1440px) {
+  .row-track {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+@media (max-width: 1024px) {
+  .row-track {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .row-track {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .row-track {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
 }
 
 .grid-container {
