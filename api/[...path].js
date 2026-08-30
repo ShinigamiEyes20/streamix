@@ -1,3 +1,7 @@
+export const config = {
+  runtime: "nodejs20.x",
+};
+
 export default async function handler(req, res) {
   const { method } = req;
   const url = new URL(req.url, `https://${req.headers.host || "localhost"}`);
@@ -25,10 +29,8 @@ export default async function handler(req, res) {
   }
 
   if (!token) {
-    return res.status(401).json({
-      success: false,
-      status_code: 401,
-      status_message: "TMDb access token not configured.",
+    return res.status(500).json({
+      error: "TMDB API token is not configured",
     });
   }
 
@@ -48,9 +50,9 @@ export default async function handler(req, res) {
       ? await response.json()
       : await response.text();
 
+    res.setHeader("Cache-Control", "public, max-age=3600");
     return res
       .status(response.status)
-      .setHeader("Cache-Control", "public, max-age=3600")
       .json(typeof data === "string" ? { message: data } : data);
   } catch (error) {
     return res.status(500).json({
