@@ -7,10 +7,18 @@ const SearchModal = ({
   onClose,
   onItemClick,
   isSearching,
+  initialQuery = "",
 }) => {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(initialQuery);
   const inputRef = useRef(null);
   const debounceTimer = useRef(null);
+
+  useEffect(() => {
+    setQuery(initialQuery);
+    if (initialQuery.trim()) {
+      onSearch?.(initialQuery);
+    }
+  }, [initialQuery, onSearch]);
 
   useEffect(() => {
     inputRef.current?.focus();

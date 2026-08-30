@@ -13,12 +13,25 @@ const Footer = () => {
         </div>
 
         <div className="footer-links">
-          <Link to="/">Home</Link>
-          <Link to="/movies">Movies</Link>
-          <Link to="/tv-shows">TV Shows</Link>
-          <Link to="/popular">Popular</Link>
-          <Link to="/about">About</Link>
-          <Link to="/disclaimer">Disclaimer</Link>
+          <div className="footer-column">
+            <h4>Quick Links</h4>
+            <Link to="/">Home</Link>
+            <Link to="/movies">Movies</Link>
+            <Link to="/tv-shows">TV Shows</Link>
+            <Link to="/popular">Popular</Link>
+          </div>
+
+          <div className="footer-column">
+            <h4>Information</h4>
+            <Link to="/about">About</Link>
+            <Link to="/disclaimer">Disclaimer</Link>
+          </div>
+
+          <div className="footer-column">
+            <h4>Connect</h4>
+            <span>Explore more titles</span>
+            <span>Streamix updates</span>
+          </div>
         </div>
 
         <div className="footer-meta">

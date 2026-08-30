@@ -1,5 +1,5 @@
-import React from 'react';
-import MovieCard from './MovieCard';
+import React from "react";
+import MovieCard from "./MovieCard";
 
 const MovieRow = ({ title, items, onItemClick }) => {
   const displayItems = items.slice(0, 24);
@@ -12,9 +12,16 @@ const MovieRow = ({ title, items, onItemClick }) => {
     <div className="row">
       <div className="row-header">
         <h2>{title}</h2>
+        <button
+          type="button"
+          className="view-all-link"
+          aria-label={`View all ${title}`}
+        >
+          View All <span aria-hidden="true">→</span>
+        </button>
       </div>
-      <div className="grid-container">
-        {displayItems.map(item => (
+      <div className="row-track">
+        {displayItems.map((item) => (
           <MovieCard
             key={item.id}
             item={item}

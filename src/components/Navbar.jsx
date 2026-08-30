@@ -6,11 +6,14 @@ const navItems = [
   { label: "Movies", to: "/movies" },
   { label: "TV Shows", to: "/tv-shows" },
   { label: "Popular", to: "/popular" },
+  { label: "About", to: "/about" },
+  { label: "Disclaimer", to: "/disclaimer" },
 ];
 
 const Navbar = ({ onOpenSearch }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 12);
@@ -20,6 +23,11 @@ const Navbar = ({ onOpenSearch }) => {
 
   const toggleMenu = () => setIsMenuOpen((open) => !open);
   const closeMenu = () => setIsMenuOpen(false);
+
+  const handleSearchSubmit = (event) => {
+    event.preventDefault();
+    onOpenSearch?.(searchValue);
+  };
 
   return (
     <nav className={`navbar ${isScrolled ? "scrolled" : ""}`}>
@@ -43,25 +51,42 @@ const Navbar = ({ onOpenSearch }) => {
               {item.label}
             </NavLink>
           ))}
-          <button
-            type="button"
-            className="nav-link nav-search-button"
-            onClick={onOpenSearch}
-          >
-            Search
-          </button>
         </div>
 
-        <button
-          className={`menu-toggle ${isMenuOpen ? "open" : ""}`}
-          onClick={toggleMenu}
-          aria-label="Toggle navigation menu"
-          type="button"
-        >
-          <span />
-          <span />
-          <span />
-        </button>
+        <div className="navbar-tools">
+          <form className="navbar-search" onSubmit={handleSearchSubmit}>
+            <span className="search-icon" aria-hidden="true">
+              ⌕
+            </span>
+            <input
+              type="search"
+              value={searchValue}
+              onChange={(event) => setSearchValue(event.target.value)}
+              placeholder="Search movies & TV shows..."
+              aria-label="Search movies and TV shows"
+            />
+          </form>
+
+          <button
+            type="button"
+            className="mobile-search-trigger"
+            onClick={() => onOpenSearch?.(searchValue)}
+            aria-label="Open search"
+          >
+            ⌕
+          </button>
+
+          <button
+            className={`menu-toggle ${isMenuOpen ? "open" : ""}`}
+            onClick={toggleMenu}
+            aria-label="Toggle navigation menu"
+            type="button"
+          >
+            <span />
+            <span />
+            <span />
+          </button>
+        </div>
 
         <div className={`side-menu ${isMenuOpen ? "open" : ""}`}>
           <div className="side-menu-header">
@@ -86,7 +111,7 @@ const Navbar = ({ onOpenSearch }) => {
               className="nav-link nav-search-button"
               onClick={() => {
                 closeMenu();
-                onOpenSearch?.();
+                onOpenSearch?.(searchValue);
               }}
             >
               Search
@@ -96,7 +121,7 @@ const Navbar = ({ onOpenSearch }) => {
 
         {isMenuOpen && (
           <div
-            className="menu-overlay"
+            className={`menu-overlay ${isMenuOpen ? "active" : ""}`}
             onClick={closeMenu}
             aria-hidden="true"
           />

@@ -16,6 +16,7 @@ function App() {
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [initialSearchQuery, setInitialSearchQuery] = useState("");
   const { searchTMDB } = useTMDB();
   const navigate = useNavigate();
 
@@ -47,9 +48,16 @@ function App() {
     }
   };
 
-  const openSearch = () => setIsSearchOpen(true);
+  const openSearch = (query = "") => {
+    setInitialSearchQuery(query);
+    setIsSearchOpen(true);
+    if (query.trim()) {
+      handleSearch(query);
+    }
+  };
   const closeSearch = () => {
     setIsSearchOpen(false);
+    setInitialSearchQuery("");
     setSearchResults([]);
   };
 
@@ -79,6 +87,7 @@ function App() {
           onClose={closeSearch}
           onItemClick={handleItemClick}
           isSearching={isSearching}
+          initialQuery={initialSearchQuery}
         />
       )}
     </div>
