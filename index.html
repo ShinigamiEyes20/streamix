@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Streamix | Your world of entertainment.</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Streamix brings together trending movies, TV shows, and entertainment discovery in one cinematic experience."
+    />
+    <meta
+      name="keywords"
+      content="Streamix, movies, TV shows, streaming, entertainment, watch online, trending content"
+    />
+    <meta name="author" content="Streamix" />
+    <meta name="robots" content="index, follow" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://streamix.vercel.app/" />
+    <meta
+      property="og:title"
+      content="Streamix | Your world of entertainment."
+    />
+    <meta
+      property="og:description"
+      content="Explore trending movies, TV shows, and entertainment discovery with the modern Streamix experience."
+    />
+    <meta property="og:image" content="/logo/streamix-mark.svg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Streamix logo" />
+    <meta property="og:site_name" content="Streamix" />
+
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://streamix.vercel.app/" />
+    <meta
+      property="twitter:title"
+      content="Streamix | Your world of entertainment."
+    />
+    <meta
+      property="twitter:description"
+      content="Explore trending movies, TV shows, and entertainment discovery with the modern Streamix experience."
+    />
+    <meta property="twitter:image" content="/logo/streamix-mark.svg" />
+    <meta property="twitter:image:alt" content="Streamix logo" />
+
+    <meta name="theme-color" content="#0b1020" />
+    <meta http-equiv="Cache-Control" content="public, max-age=3600" />
+    <meta http-equiv="Expires" content="1" />
+    <link rel="canonical" href="https://streamix.vercel.app/" />
+    <link rel="icon" type="image/svg+xml" href="/logo/streamix-mark.svg" />
+    <link rel="manifest" href="/config/manifest.json" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html {
+        background: #050816;
+      }
+      body {
+        font-family:
+          "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        background: #050816;
+        color: #f8fafc;
+        overflow-x: hidden;
+      }
+      #root {
+        min-height: 100vh;
+      }
+      .loading-screen {
+        position: fixed;
+        inset: 0;
+        background: radial-gradient(
+          circle at top,
+          rgba(34, 211, 238, 0.14),
+          rgba(3, 7, 18, 1) 50%
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+      }
+      .streamix-logo {
+        font-size: clamp(1.5rem, 2vw, 2.4rem);
+        font-weight: 800;
+        letter-spacing: 0.22em;
+        color: #f8fafc;
+        text-shadow: 0 0 30px rgba(34, 211, 238, 0.4);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <div class="loading-screen">
+      <div class="streamix-logo">STREAMIX</div>
+    </div>
+    <script>
+      window.addEventListener("load", () => {
+        const loadingScreen = document.querySelector(".loading-screen");
+        if (loadingScreen) {
+          loadingScreen.style.opacity = "0";
+          loadingScreen.style.transition = "opacity 0.45s ease";
+          setTimeout(() => loadingScreen.remove(), 450);
+        }
+      });
+    </script>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
