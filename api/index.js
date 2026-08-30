@@ -1,9 +1,13 @@
 export default async function handler(req, res) {
   const method = req.method || "GET";
+  const requestUrl = new URL(
+    req.url,
+    `https://${req.headers.host || "localhost"}`,
+  );
   const pathParam = req.query?.path;
   const requestedPath = Array.isArray(pathParam)
     ? pathParam.join("/")
-    : pathParam || "";
+    : pathParam || requestUrl.pathname.replace(/^\/api\/?/, "");
   const normalizedPath = requestedPath
     .split("/")
     .filter(Boolean)
