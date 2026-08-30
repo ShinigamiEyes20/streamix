@@ -1025,7 +1025,7 @@
   gap: 10px;
 }
 
-..side-menu-links .nav-link:hover {
+.side-menu-links .nav-link:hover {
   color: var(--netflix-red);
   background: rgba(229, 9, 20, 0.1);
   transform: translateX(5px);

@@ -50,8 +50,7 @@ desktop.ini
 #  Cloud + Deployment Specific
 # =========================================
 
-# Cloudflare / Workers / Vercel / Netlify
-.wrangler/
+# Vercel / Netlify
 .vercel/
 .netlify/
 functions/.netlify/
@@ -144,8 +143,7 @@ pnpm-lock.yaml
 #  Cloud + Deployment Specific
 # =========================================
 
-# Cloudflare / Workers / Vercel / Netlify
-**/.wrangler/
+# Vercel / Netlify
 **/.vercel/
 **/.netlify/
 **/functions/.netlify/

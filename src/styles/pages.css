@@ -1182,7 +1182,7 @@ select.filter-dropdown {
   }
 }
 
-media (max-width: 768px) {
+@media (max-width: 768px) {
   .watch-container {
     padding: 0rem 1.5rem !important;
   }
