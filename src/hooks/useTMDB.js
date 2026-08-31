@@ -389,6 +389,7 @@ export const useTMDB = () => {
     fetchDiscoverTV,
     fetchMovieRecommendations,
     fetchTVRecommendations,
+    buildUrl,
     ...constants,
   };
 };

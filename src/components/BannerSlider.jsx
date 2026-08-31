@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTMDB } from '../hooks/useTMDB';
 
 const BannerSlider = ({ movies, onItemClick }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const navigate = useNavigate();
   const { BACKDROP_URL } = useTMDB();
 
   useEffect(() => {
@@ -55,13 +57,13 @@ const BannerSlider = ({ movies, onItemClick }) => {
           </p>
 
           <div className="banner-buttons">
-            <a
-              href={`/watch?type=${currentMovie.media_type || 'movie'}&id=${currentMovie.id}`}
+            <button
               className="btn btn-primary"
+              onClick={() => navigate(`/watch?type=${currentMovie.media_type || 'movie'}&id=${currentMovie.id}`)}
             >
               <span className="play-icon">▶</span>
               Play
-            </a>
+            </button>
             <button
               className="btn btn-secondary"
               onClick={() => onItemClick(currentMovie)}

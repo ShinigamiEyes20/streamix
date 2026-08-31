@@ -11,15 +11,15 @@
   "orientation": "any",
   "icons": [
     {
-      "src": "/logo/streamix-mark.svg",
+      "src": "/logo/streamix-s.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/logo/streamix-mark.svg",
+      "src": "/logo/streamix-s.png",
       "sizes": "192x192",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any"
     }
   ],
@@ -31,25 +31,25 @@
       "name": "Home",
       "url": "/",
       "description": "Streamix home page",
-      "icons": [{ "src": "/logo/streamix-mark.svg", "sizes": "96x96" }]
+      "icons": [{ "src": "/logo/streamix-s.png", "sizes": "96x96" }]
     },
     {
       "name": "Movies",
       "url": "/movies",
       "description": "Browse Streamix movies",
-      "icons": [{ "src": "/logo/streamix-mark.svg", "sizes": "96x96" }]
+      "icons": [{ "src": "/logo/streamix-s.png", "sizes": "96x96" }]
     },
     {
       "name": "TV Shows",
       "url": "/tv-shows",
       "description": "Browse Streamix TV shows",
-      "icons": [{ "src": "/logo/streamix-mark.svg", "sizes": "96x96" }]
+      "icons": [{ "src": "/logo/streamix-s.png", "sizes": "96x96" }]
     },
     {
       "name": "Popular",
       "url": "/popular",
       "description": "Popular Streamix titles",
-      "icons": [{ "src": "/logo/streamix-mark.svg", "sizes": "96x96" }]
+      "icons": [{ "src": "/logo/streamix-s.png", "sizes": "96x96" }]
     }
   ]
 }

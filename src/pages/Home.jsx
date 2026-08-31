@@ -22,7 +22,6 @@ const Home = () => {
     fetchTrending,
     fetchTrendingAnime,
     fetchNowPlaying,
-    searchTMDB,
     fetchCredits,
   } = useTMDB();
 

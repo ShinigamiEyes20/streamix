@@ -27,7 +27,7 @@ const Popular = () => {
       : undefined,
   });
 
-  const { movieGenres, fetchCredits } = useTMDB();
+  const { movieGenres, fetchCredits, buildUrl } = useTMDB();
 
   useEffect(() => {
     fetchMovies();
@@ -45,16 +45,6 @@ const Popular = () => {
 
     setSearchParams(params);
   }, [filters, setSearchParams]);
-
-  const buildUrl = (endpoint, params = {}) => {
-    const url = new URL(`/api${endpoint}`, window.location.origin);
-    Object.keys(params).forEach((key) => {
-      if (params[key] !== undefined && params[key] !== null) {
-        url.searchParams.append(key, params[key]);
-      }
-    });
-    return url.toString();
-  };
 
   const fetchMovies = async () => {
     try {

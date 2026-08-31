@@ -22,7 +22,7 @@ const Watch = () => {
   const [serverError, setServerError] = useState(null);
   const [failedServers, setFailedServers] = useState(new Set());
 
-  const { fetchMovieRecommendations, fetchTVRecommendations, POSTER_URL } =
+  const { fetchMovieRecommendations, fetchTVRecommendations, POSTER_URL, buildUrl } =
     useTMDB();
 
   const servers = [
@@ -79,7 +79,7 @@ const Watch = () => {
       setLoading(true);
       setPageError(null);
 
-      const contentRes = await fetch(`/api/${type}/${id}`);
+      const contentRes = await fetch(buildUrl(`/${type}/${id}`));
       if (!contentRes.ok) {
         const errorText = await contentRes.text();
         throw new Error(
@@ -120,8 +120,7 @@ const Watch = () => {
 
   const fetchSeasons = async () => {
     try {
-      const res = await fetch(`/api/tv/${id}`);
-      const data = await res.json();
+      const res = await fetch(buildUrl(`/tv/${id}`));      const data = await res.json();
       const validSeasons = data.seasons || [];
       setSeasons(validSeasons);
 
@@ -171,7 +170,6 @@ const Watch = () => {
         .filter((idx) => !newFailed.has(idx));
       if (availableServers.length > 0) {
         const nextServer = availableServers[0];
-        const nextName = servers[nextServer]?.name || "Server";
         setServerError(
           `${currentName} did not load correctly. Please try another server.`,
         );

@@ -1,7 +1,9 @@
 import React, { useCallback, memo, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTMDB } from "../hooks/useTMDB";
 
 const Modal = memo(({ item, onClose }) => {
+  const navigate = useNavigate();
   const { POSTER_URL } = useTMDB();
 
   useEffect(() => {
@@ -21,9 +23,8 @@ const Modal = memo(({ item, onClose }) => {
   );
 
   const playButtonClick = useCallback(() => {
-    window.location.href = `/watch?type=${item.type}&id=${item.id}`;
-  }, [item.type, item.id]);
-
+    navigate(`/watch?type=${item.type}&id=${item.id}`);
+  }, [item.type, item.id, navigate]);
   const title = item.title || item.name || "Untitled";
   const year = item.release_date
     ? item.release_date.substring(0, 4)
@@ -54,7 +55,7 @@ const Modal = memo(({ item, onClose }) => {
               src={
                 item.poster_path
                   ? `${POSTER_URL}${item.poster_path}`
-                  : "/logo/streamix-mark.svg"
+                  : "/logo/streamix-s.png"
               }
               alt={title}
               className="modal-poster"
