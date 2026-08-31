@@ -29,37 +29,51 @@ const Watch = () => {
     {
       name: "Server 1",
       getUrl: (s, e) =>
-        `https://www.2embed.cc/embed/${type}/${id}${type === "tv" ? `/${s}/${e}` : ""}`,
+        type === "tv"
+          ? `https://vidsrc.to/embed/tv/${id}/${s}/${e}`
+          : `https://vidsrc.to/embed/movie/${id}`,
     },
     {
       name: "Server 2",
       getUrl: (s, e) =>
-        `https://vidsrc.to/embed/${type}/${id}/${type === "tv" ? `${s}-${e}` : ""}`,
+        type === "tv"
+          ? `https://vidsrc-embed.ru/embed/tv/${id}/${s}/${e}`
+          : `https://vidsrc-embed.ru/embed/movie/${id}`,
     },
     {
       name: "Server 3",
       getUrl: (s, e) =>
-        `https://vidsrc.net/embed/${type}/?tmdb=${id}${type === "tv" ? `&season=${s}&episode=${e}` : ""}`,
+        type === "tv"
+          ? `https://player.videasy.net/tv/${id}/${s}/${e}`
+          : `https://player.videasy.net/movie/${id}`,
     },
     {
       name: "Server 4",
       getUrl: (s, e) =>
-        `https://vidsrc.xyz/embed/${type}/${id}${type === "tv" ? `/${s}/${e}` : ""}`,
+        type === "tv"
+          ? `https://vidsrc2.ru/embed/tv/${id}/${s}/${e}`
+          : `https://vidsrc2.ru/embed/movie/${id}`,
     },
     {
       name: "Server 5",
       getUrl: (s, e) =>
-        `https://player.videasy.net/${type}/${id}${type === "tv" ? `/${s}/${e}` : ""}`,
+        type === "tv"
+          ? `https://vidlink.pro/tv/${id}/${s}/${e}`
+          : `https://vidlink.pro/movie/${id}`,
     },
     {
       name: "Server 6",
       getUrl: (s, e) =>
-        `https://vidlink.pro/embed/${type}/${id}${type === "tv" ? `/${s}/${e}` : ""}`,
+        type === "tv"
+          ? `https://vidsrc-embed.su/embed/tv/${id}/${s}/${e}`
+          : `https://vidsrc-embed.su/embed/movie/${id}`,
     },
     {
       name: "Server 7",
       getUrl: (s, e) =>
-        `https://vidsrc.cc/v2/embed/${type}/${id}${type === "tv" ? `/${s}/${e}` : ""}`,
+        type === "tv"
+          ? `https://vidsrc.ir/embed/tv/${id}/${s}/${e}`
+          : `https://vidsrc.ir/embed/movie/${id}`,
     },
   ];
 
