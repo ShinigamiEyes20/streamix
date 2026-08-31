@@ -2089,28 +2089,6 @@
 
   .controls-section {
     order: 2;
-  }
-}
-
-/* Mobile layout */
-@media (max-width: 768px) {
-  .main-content {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  .recommendations-sidebar {
-    order: 3; /* Move recommendations to after controls-section */
-    width: 100%;
-  }
-
-  .video-player-section {
-    order: 1;
-  }
-
-  .controls-section {
-    order: 2;
     display: flex;
     flex-direction: column;
     gap: 20px;

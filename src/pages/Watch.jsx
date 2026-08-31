@@ -135,7 +135,7 @@ const Watch = () => {
 
   const fetchEpisodes = async (seasonNumber) => {
     try {
-      const res = await fetch(`/api/tv/${id}/season/${seasonNumber}`);
+      const res = await fetch(buildUrl(`/tv/${id}/season/${seasonNumber}`));
       const data = await res.json();
       setEpisodes(data.episodes || []);
       setCurrentEpisode(1);
