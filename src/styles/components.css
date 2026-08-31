@@ -559,6 +559,17 @@
   overflow-y: auto;
 }
 
+.results-grid-wrapper {
+  position: relative;
+}
+
+.search-loading-overlay {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+}
+
 .results-grid {
   display: -ms-grid;
   display: grid;

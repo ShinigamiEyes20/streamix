@@ -121,20 +121,27 @@ const SearchModal = ({
         </div>
 
         <div className="search-results">
-          {isSearching ? (
+          {searchResults.length > 0 ? (
+            <div className="results-grid-wrapper">
+              <div className="results-grid">
+                {searchResults.map((item) => (
+                  <MovieCard
+                    key={`${item.id}-${item.media_type}`}
+                    item={item}
+                    onClick={() => handleItemSelect(item)}
+                  />
+                ))}
+              </div>
+              {isSearching && (
+                <div className="search-loading-overlay">
+                  <div className="mini-spinner" />
+                </div>
+              )}
+            </div>
+          ) : isSearching ? (
             <div className="search-state-box">
               <div className="mini-spinner" />
               <p>Searching for titles...</p>
-            </div>
-          ) : searchResults.length > 0 ? (
-            <div className="results-grid">
-              {searchResults.map((item) => (
-                <MovieCard
-                  key={`${item.id}-${item.media_type}`}
-                  item={item}
-                  onClick={() => handleItemSelect(item)}
-                />
-              ))}
             </div>
           ) : query ? (
             <div className="search-state-box empty">
