@@ -43,8 +43,12 @@ const SearchModal = ({
     (value) => {
       if (debounceTimer.current) clearTimeout(debounceTimer.current);
       debounceTimer.current = setTimeout(() => {
-        onSearch?.(value);
-      }, 250);
+        const trimmed = value.trim();
+        // Only search if query is empty (to reset) or has 2+ characters
+        if (trimmed.length === 0 || trimmed.length >= 2) {
+          onSearch?.(value);
+        }
+      }, 450);
     },
     [onSearch],
   );
