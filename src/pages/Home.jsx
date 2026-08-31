@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import BannerSlider from "../components/BannerSlider";
 import MovieRow from "../components/MovieRow";
 import Modal from "../components/Modal";
-import SearchModal from "../components/SearchModal";
 import { useTMDB } from "../hooks/useTMDB";
 import "./Home.css";
 
@@ -13,8 +12,6 @@ const Home = () => {
   const [nowPlayingMovies, setNowPlayingMovies] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [timeWindow, setTimeWindow] = useState("week");
@@ -83,21 +80,6 @@ const Home = () => {
     setTimeWindow((prev) => (prev === "week" ? "day" : "week"));
   };
 
-  const handleSearch = async (query) => {
-    if (!query.trim()) {
-      setSearchResults([]);
-      return;
-    }
-
-    try {
-      const results = await searchTMDB(query);
-      setSearchResults(results);
-    } catch (error) {
-      console.error("Search error:", error);
-      setSearchResults([]);
-    }
-  };
-
   const handleItemClick = async (item) => {
     const type =
       item.media_type === "movie" || item.release_date ? "movie" : "tv";
@@ -121,11 +103,7 @@ const Home = () => {
     setSelectedItem(null);
   };
 
-  const openSearch = () => setIsSearchOpen(true);
-  const closeSearch = () => {
-    setIsSearchOpen(false);
-    setSearchResults([]);
-  };
+
 
   if (loading) {
     return (
@@ -187,6 +165,7 @@ const Home = () => {
             title="Now Playing"
             items={nowPlayingMovies.slice(0, 12)}
             onItemClick={handleItemClick}
+            rowType="movie"
           />
         )}
 
@@ -197,6 +176,7 @@ const Home = () => {
                 title={`Trending Movies ${timeWindow === "day" ? "Today" : "This Week"}`}
                 items={trendingMovies.slice(0, 15)}
                 onItemClick={handleItemClick}
+                rowType="movie"
               />
             </div>
           )}
@@ -207,6 +187,7 @@ const Home = () => {
                 title={`Trending TV Shows ${timeWindow === "day" ? "Today" : "This Week"}`}
                 items={trendingTV.slice(0, 15)}
                 onItemClick={handleItemClick}
+                rowType="tv"
               />
             </div>
           )}
@@ -223,15 +204,6 @@ const Home = () => {
 
       {isModalOpen && selectedItem && (
         <Modal item={selectedItem} onClose={closeModal} />
-      )}
-
-      {isSearchOpen && (
-        <SearchModal
-          searchResults={searchResults}
-          onSearch={handleSearch}
-          onClose={closeSearch}
-          onItemClick={handleItemClick}
-        />
       )}
     </div>
   );

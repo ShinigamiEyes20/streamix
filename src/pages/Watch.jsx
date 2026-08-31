@@ -20,6 +20,7 @@ const Watch = () => {
   const [loading, setLoading] = useState(true);
   const [pageError, setPageError] = useState(null);
   const [serverError, setServerError] = useState(null);
+  const [failedServers, setFailedServers] = useState(new Set());
 
   const { fetchMovieRecommendations, fetchTVRecommendations, POSTER_URL } =
     useTMDB();
@@ -64,6 +65,9 @@ const Watch = () => {
 
   useEffect(() => {
     if (type && id) {
+      setFailedServers(new Set());
+      setCurrentServer(0);
+      setServerError(null);
       fetchContentData();
     } else {
       setLoading(false);
@@ -151,19 +155,36 @@ const Watch = () => {
   };
 
   const handleServerError = () => {
-    const nextIndex = (currentServer + 1) % servers.length;
-    const currentName = servers[currentServer]?.name || "Current server";
-    const nextName = servers[nextIndex]?.name || "Server 1";
+    const newFailed = new Set(failedServers);
+    newFailed.add(currentServer);
+    setFailedServers(newFailed);
 
-    setServerError(
-      `${currentName} did not load correctly. Switching to ${nextName}.`,
-    );
-    setCurrentServer(nextIndex);
+    const currentName = servers[currentServer]?.name || "Current server";
+
+    if (newFailed.size >= servers.length) {
+      setServerError(
+        `${currentName} failed. All servers have been tried. Please refresh the page or select a different title.`,
+      );
+    } else {
+      const availableServers = servers
+        .map((_, idx) => idx)
+        .filter((idx) => !newFailed.has(idx));
+      if (availableServers.length > 0) {
+        const nextServer = availableServers[0];
+        const nextName = servers[nextServer]?.name || "Server";
+        setServerError(
+          `${currentName} did not load correctly. Please try another server.`,
+        );
+        setCurrentServer(nextServer);
+      }
+    }
   };
 
   const handleRecommendationClick = (recType, recId) => {
+    setFailedServers(new Set());
+    setCurrentServer(0);
+    setServerError(null);
     navigate(`/watch?type=${recType}&id=${recId}`);
-    window.location.reload(); // Refresh to load new content
   };
 
   if (loading) {

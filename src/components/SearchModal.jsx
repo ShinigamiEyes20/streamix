@@ -12,13 +12,16 @@ const SearchModal = ({
   const [query, setQuery] = useState(initialQuery);
   const inputRef = useRef(null);
   const debounceTimer = useRef(null);
+  const hasSearchedRef = useRef(false);
 
   useEffect(() => {
     setQuery(initialQuery);
+    hasSearchedRef.current = false;
     if (initialQuery.trim()) {
+      hasSearchedRef.current = true;
       onSearch?.(initialQuery);
     }
-  }, [initialQuery, onSearch]);
+  }, [initialQuery]);
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -98,7 +101,10 @@ const SearchModal = ({
               <button
                 type="button"
                 className="search-clear-button"
-                onClick={() => setQuery("")}
+                onClick={() => {
+                  setQuery("");
+                  onSearch?.("");
+                }}
                 aria-label="Clear search"
               >
                 Clear

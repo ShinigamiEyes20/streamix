@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
@@ -17,27 +17,38 @@ function App() {
   const [isSearching, setIsSearching] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [initialSearchQuery, setInitialSearchQuery] = useState("");
+  const requestCounterRef = useRef(0);
   const { searchTMDB } = useTMDB();
   const navigate = useNavigate();
 
-  const handleSearch = async (query) => {
-    if (!query.trim()) {
-      setSearchResults([]);
-      setIsSearching(false);
-      return;
-    }
+  const handleSearch = useCallback(
+    async (query) => {
+      if (!query.trim()) {
+        setSearchResults([]);
+        setIsSearching(false);
+        return;
+      }
 
-    setIsSearching(true);
-    try {
-      const results = await searchTMDB(query);
-      setSearchResults(results);
-    } catch (error) {
-      console.error("Search error:", error);
-      setSearchResults([]);
-    } finally {
-      setIsSearching(false);
-    }
-  };
+      const currentRequest = ++requestCounterRef.current;
+      setIsSearching(true);
+      try {
+        const results = await searchTMDB(query);
+        if (currentRequest === requestCounterRef.current) {
+          setSearchResults(results);
+        }
+      } catch (error) {
+        console.error("Search error:", error);
+        if (currentRequest === requestCounterRef.current) {
+          setSearchResults([]);
+        }
+      } finally {
+        if (currentRequest === requestCounterRef.current) {
+          setIsSearching(false);
+        }
+      }
+    },
+    [searchTMDB]
+  );
 
   const handleItemClick = (item) => {
     if (item && item.id && (item.media_type || item.type)) {
@@ -51,9 +62,6 @@ function App() {
   const openSearch = (query = "") => {
     setInitialSearchQuery(query);
     setIsSearchOpen(true);
-    if (query.trim()) {
-      handleSearch(query);
-    }
   };
   const closeSearch = () => {
     setIsSearchOpen(false);
