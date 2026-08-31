@@ -24,6 +24,18 @@ const SearchModal = ({
     inputRef.current?.focus();
   }, []);
 
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    const previousOverflowY = document.body.style.overflowY;
+    document.body.style.overflow = "hidden";
+    document.body.style.overflowY = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.body.style.overflowY = previousOverflowY;
+    };
+  }, []);
+
   const debouncedSearch = useCallback(
     (value) => {
       if (debounceTimer.current) clearTimeout(debounceTimer.current);
@@ -70,35 +82,36 @@ const SearchModal = ({
       aria-label="Search Streamix"
     >
       <div className="search-modal-content">
-        <button
-          className="search-close"
-          onClick={handleClose}
-          aria-label="Close search"
-        >
-          ×
-        </button>
-
-        <div className="search-input-container">
-          <span className="search-input-icon">⌕</span>
-          <input
-            ref={inputRef}
-            type="text"
-            placeholder="Search movies and TV shows..."
-            value={query}
-            onChange={handleInputChange}
-            className="search-input"
-            autoComplete="off"
-          />
-          {query && (
-            <button
-              type="button"
-              className="search-clear-button"
-              onClick={() => setQuery("")}
-              aria-label="Clear search"
-            >
-              Clear
-            </button>
-          )}
+        <div className="search-modal-header">
+          <div className="search-input-container">
+            <span className="search-input-icon">⌕</span>
+            <input
+              ref={inputRef}
+              type="text"
+              placeholder="Search movies and TV shows..."
+              value={query}
+              onChange={handleInputChange}
+              className="search-input"
+              autoComplete="off"
+            />
+            {query && (
+              <button
+                type="button"
+                className="search-clear-button"
+                onClick={() => setQuery("")}
+                aria-label="Clear search"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+          <button
+            className="search-close"
+            onClick={handleClose}
+            aria-label="Close search"
+          >
+            ×
+          </button>
         </div>
 
         <div className="search-results">
