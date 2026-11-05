@@ -1,18 +1,25 @@
-import React, { useCallback, memo, useEffect } from "react";
+import React, { useCallback, memo, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { useTMDB } from "../hooks/useTMDB";
+import { POSTER_URL } from "../hooks/useTMDB";
 
 const Modal = memo(({ item, onClose }) => {
   const navigate = useNavigate();
-  const { POSTER_URL } = useTMDB();
+  const dialogRef = useRef(null);
 
   useEffect(() => {
+    const previousFocus = document.activeElement;
+    dialogRef.current?.querySelector("button")?.focus();
     const handleKeyDown = (event) => {
       if (event.key === "Escape") onClose();
+      if (event.key === "Tab") {
+        const focusable = [...(dialogRef.current?.querySelectorAll("button, a[href], [tabindex]:not([tabindex='-1'])") || [])];
+        if (event.shiftKey && document.activeElement === focusable[0]) { event.preventDefault(); focusable.at(-1)?.focus(); }
+        else if (!event.shiftKey && document.activeElement === focusable.at(-1)) { event.preventDefault(); focusable[0]?.focus(); }
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    return () => { window.removeEventListener("keydown", handleKeyDown); previousFocus?.focus?.(); };
   }, [onClose]);
 
   const handleBackdropClick = useCallback(
@@ -40,7 +47,7 @@ const Modal = memo(({ item, onClose }) => {
       aria-modal="true"
       aria-label={title}
     >
-      <div className="modal-content">
+      <div className="modal-content" ref={dialogRef}>
         <button
           className="modal-close"
           onClick={onClose}
@@ -103,8 +110,8 @@ const Modal = memo(({ item, onClose }) => {
 
             <div className="modal-actions">
               <button onClick={playButtonClick} className="watch-btn primary">
-                <span className="play-icon">▶</span>
-                Watch Now
+                <span className="play-icon">↗</span>
+                Where to watch
               </button>
               <button onClick={onClose} className="watch-btn secondary">
                 Close

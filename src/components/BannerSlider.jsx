@@ -1,92 +1,43 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useTMDB } from '../hooks/useTMDB';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { BACKDROP_URL } from "../hooks/useTMDB";
 
-const BannerSlider = ({ movies, onItemClick }) => {
+export default function BannerSlider({ movies = [], onItemClick }) {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [paused, setPaused] = useState(false);
   const navigate = useNavigate();
-  const { BACKDROP_URL } = useTMDB();
+  const currentMovie = movies[currentSlide % Math.max(movies.length, 1)];
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % movies.length);
-    }, 5000);
+    if (paused || movies.length < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
+    const interval = window.setInterval(() => setCurrentSlide((current) => (current + 1) % movies.length), 6000);
+    return () => window.clearInterval(interval);
+  }, [movies.length, paused]);
 
-    return () => clearInterval(interval);
-  }, [movies.length]);
-
-  const goToSlide = (index) => {
-    setCurrentSlide(index);
-  };
-
-  if (!movies.length) return null;
-
-  const currentMovie = movies[currentSlide];
+  if (!currentMovie) return null;
+  const title = currentMovie.title || currentMovie.name || "Featured title";
+  const image = currentMovie.backdrop_path ? `${BACKDROP_URL}${currentMovie.backdrop_path}` : "";
+  const imageSrcSet = currentMovie.backdrop_path
+    ? ["w780", "w1280", "original"].map((size, index) => `${image.replace("w1280", size)} ${[780, 1280, 1920][index]}w`).join(", ")
+    : undefined;
+  const type = currentMovie.media_type === "tv" ? "tv" : "movie";
 
   return (
-    <div className="banner-slider">
-      <div 
-        className="banner-slide"
-        style={{
-          backgroundImage: `linear-gradient(to right, rgba(0,0,0,0.7) 30%, transparent 70%), 
-                           linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%),
-                           url(${BACKDROP_URL}${currentMovie.backdrop_path})`
-        }}
-      >
+    <section className="banner-slider" aria-label="Featured titles" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onFocusCapture={() => setPaused(true)} onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setPaused(false); }}>
+      <div className="banner-slide">
+        {image && <img className="banner-backdrop" src={image} srcSet={imageSrcSet} sizes="100vw" alt="" width="1280" height="720" loading="eager" fetchPriority="high" />}
         <div className="banner-content">
-          {/* Add Now Playing overlay */}
-          <div className="now-playing-overlay">
-            <span className="now-playing-badge">Now Playing in Theater</span>
-          </div>
-          
-          <h1 className="banner-title">{currentMovie.title || currentMovie.name}</h1>
-          
-          <div className="banner-meta">
-            <span className="rating">⭐ {currentMovie.vote_average?.toFixed(1)}</span>
-            <span className="year">
-              {currentMovie.release_date?.substring(0, 4) || 
-               currentMovie.first_air_date?.substring(0, 4)}
-            </span>
-          </div>
-
-          <p className="banner-description">
-            {currentMovie.overview?.length > 150 
-              ? `${currentMovie.overview.substring(0, 150)}...`
-              : currentMovie.overview
-            }
-          </p>
-
+          <div className="now-playing-overlay"><span className="now-playing-badge">Featured discovery</span></div>
+          <h1 className="banner-title">{title}</h1>
+          <div className="banner-meta"><span className="rating">★ {currentMovie.vote_average?.toFixed(1) || "—"}</span><span className="year">{(currentMovie.release_date || currentMovie.first_air_date || "").slice(0, 4)}</span></div>
+          <p className="banner-description">{currentMovie.overview?.length > 180 ? `${currentMovie.overview.slice(0, 180).trim()}…` : currentMovie.overview}</p>
           <div className="banner-buttons">
-            <button
-              className="btn btn-primary"
-              onClick={() => navigate(`/watch?type=${currentMovie.media_type || 'movie'}&id=${currentMovie.id}`)}
-            >
-              <span className="play-icon">▶</span>
-              Play
-            </button>
-            <button
-              className="btn btn-secondary"
-              onClick={() => onItemClick(currentMovie)}
-            >
-              <span className="info-icon">ⓘ</span>
-              More Info
-            </button>
+            <button className="btn btn-primary" onClick={() => navigate(`/watch?type=${type}&id=${currentMovie.id}`)}>Where to watch</button>
+            <button className="btn btn-secondary" onClick={() => onItemClick?.({ ...currentMovie, type })}>More Info</button>
           </div>
         </div>
       </div>
-
-      <div className="banner-dots">
-        {movies.map((_, index) => (
-          <button
-            key={index}
-            className={`banner-dot ${index === currentSlide ? 'active' : ''}`}
-            onClick={() => goToSlide(index)}
-            aria-label={`Go to slide ${index + 1}`}
-          />
-        ))}
-      </div>
-    </div>
+      {movies.length > 1 && <div className="banner-dots" role="group" aria-label="Choose featured title">{movies.slice(0, 10).map((movie, index) => <button key={movie.id} type="button" className={`banner-dot ${index === currentSlide ? "active" : ""}`} onClick={() => setCurrentSlide(index)} aria-label={`Show featured title ${index + 1}`} aria-pressed={index === currentSlide} />)}</div>}
+    </section>
   );
-};
-
-export default BannerSlider;
+}

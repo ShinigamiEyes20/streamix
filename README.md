@@ -1,57 +1,85 @@
 # Streamix
 
-Streamix is a modern movie and TV discovery app built with React and Vite. It pairs a polished streaming-style interface with TMDb-powered metadata to help users browse trending titles, discover new content, and jump into watch sessions quickly.
-
-## Brand
-
-- Name: Streamix
-- Tagline: Your world of entertainment.
+Streamix is a responsive movie and TV discovery app built with React and Vite. It uses TMDb metadata to help people explore titles, official trailers, and regional availability from licensed services. Streamix does not host or play media.
 
 ## Features
 
-- Cinematic landing page with featured content
-- Trending movie and TV browsing
-- Search across titles and media types
-- Responsive design for mobile and desktop
-- TMDb-backed metadata and poster system
-- Vercel-ready configuration for deployment
+- Featured titles and trending movie/TV discovery
+- Search with recent queries and keyboard-accessible results
+- Movie and TV discovery filters
+- Title detail pages with cast, seasons, episodes, similar titles, and official trailers
+- Regional “Where to watch” availability from TMDb, with region selection and PH/US fallback
+- Local My List and recently explored titles
+- Responsive cinematic UI, reduced-motion support, keyboard navigation, and screen-reader labels
+- Route-level code splitting, short-lived metadata caching, offline shell, and installable PWA
+- Vercel serverless TMDb proxy with endpoint allowlisting and server-side credentials
 
-## Local development
+## Screenshots
 
-1. Install dependencies
+Add project screenshots here when available:
 
-```bash
-npm install
-```
+- `docs/screenshots/home.png` — Home and featured titles
+- `docs/screenshots/details.png` — Title details and provider availability
+- `docs/screenshots/mobile.png` — Mobile layout
 
-2. Copy the environment file and add your TMDb token
+## Tech stack
 
-```bash
-cp .env.example .env
-```
+- React 19, React Router, Vite 7
+- Vercel serverless functions
+- TMDb API
+- vite-plugin-pwa and vite-plugin-sitemap
 
-3. Start the app
+## Local setup
 
-```bash
-npm run dev
-```
+Requirements: Node.js 20.19+ or 22.12+, npm, and a TMDb API Read Access Token.
+
+1. Install packages: `npm install`
+2. Copy `.env.example` to `.env` and set `TMDB_READ_ACCESS_TOKEN`.
+3. Start the frontend and local TMDb development proxy: `npm run dev`
+4. Verify the hardened serverless proxy contract: `npm run check:api`
+5. Verify quality/build: `npm run lint` and `npm run build`
+
+The Vite development proxy forwards `/api` to TMDb and adds the token in Node-side Vite config. To run the exact Vercel serverless handler locally instead, use `vercel dev` with the Vercel CLI and the same environment variable. The token must not use a `VITE_` prefix and must never be placed in client code.
 
 ## Environment variables
 
-```env
-TMDB_READ_ACCESS_TOKEN=your_tmdb_read_access_token_here
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `TMDB_READ_ACCESS_TOKEN` | Yes | TMDb bearer token used only by the serverless proxy and local Vite proxy |
+
+Only configure this secret on the server. Do not commit `.env` files.
+
+## Deploy to Vercel
+
+1. Import this repository into Vercel with the Vite preset.
+2. Use `npm run build` and `dist` as the output directory.
+3. Add `TMDB_READ_ACCESS_TOKEN` in Project Settings → Environment Variables for the required deployment environments.
+4. Deploy. Verify `/api/movie/now_playing`, a title detail URL, and the security headers in the browser Network panel.
+5. If using a custom domain, set `VITE_SITE_URL` in the Vercel build environment and update the static `robots.txt` and `sitemap.xml` hosts.
+
+Vercel rewrites `/api/*` to the serverless proxy and other application routes to the SPA. The proxy accepts only the endpoints the UI needs; it does not forward arbitrary TMDb paths.
+
+## Legal and attribution
+
+Streamix hosts no media and does not embed third-party streaming players. Metadata and artwork are provided by The Movie Database (TMDb); where-to-watch data is regional and may change. Official trailer embeds use YouTube’s privacy-enhanced domain and are loaded only after the user opens a trailer.
+
+**This product uses the TMDB API but is not endorsed or certified by TMDB.** The required TMDb logo attribution is displayed in the site footer. Use of TMDb data and artwork must follow the [TMDb terms](https://www.themoviedb.org/terms-of-use) and [API terms](https://www.themoviedb.org/documentation/api/terms-of-use). Provider availability should be confirmed with the provider.
+
+## Project structure
+
+```text
+api/                 Vercel serverless TMDb proxy
+public/              Icons, manifest, robots and sitemap
+src/components/      Shared navigation, cards, rows and dialogs
+src/hooks/           TMDb, metadata and local-storage hooks
+src/lib/              API client and isolated official trailer embed policy
+src/pages/            Route-level pages
+src/styles/           Global, component, page and responsive styles
 ```
 
-Add this value in the Vercel project dashboard under Project Settings → Environment Variables.
+## Roadmap
 
-## Vercel deployment
-
-1. Import the repository into Vercel.
-2. Set the framework to Vite and the build command to `npm run build`.
-3. Set the output directory to `dist`.
-4. Add the required environment variables from `.env.example`.
-5. Deploy and verify that the TMDb proxy works properly in production.
-
-## Attribution
-
-This project uses TMDb API data for movie and TV metadata, artwork, and catalog information. Please follow TMDb API usage terms and licensing requirements in production deployments.
+- Add automated unit and accessibility tests
+- Expand static prerendering for shareable title pages
+- Add user-controlled export/import for locally saved titles
+- Continue performance and accessibility audits on real mobile devices

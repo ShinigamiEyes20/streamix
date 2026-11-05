@@ -1,7 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { usePageMeta } from "../hooks/usePageMeta";
 
 const Disclaimer = () => {
+  usePageMeta({ title: "Disclaimer", description: "Streamix hosts no media. Review information about TMDb metadata, official providers, and third-party services." });
   return (
     <div className="static-page">
       <div className="static-container">
@@ -12,8 +14,8 @@ const Disclaimer = () => {
           <section className="disclaimer-section">
             <h2>Third-party data and services</h2>
             <p>
-              Streamix uses public metadata and media references from
-              third-party sources, including The Movie Database (TMDb), to
+              Streamix hosts no media. It uses metadata and artwork from
+              The Movie Database (TMDb) to
               provide titles, posters, descriptions, genres, and release
               information. We do not claim ownership of any media, titles, or
               related content shown in the interface.
@@ -23,10 +25,10 @@ const Disclaimer = () => {
           <section className="disclaimer-section">
             <h2>Content sourcing</h2>
             <p>
-              This project is a front-end experience and discovery interface. It
-              does not operate as a licensed media host, and it does not claim
-              to store or distribute copyrighted content directly. Availability
-              of content may vary by service, region, or platform.
+              This project is a metadata and availability discovery interface.
+              It does not store, host, or distribute movie or television media.
+              Links direct users to third-party services; availability varies
+              by service and region.
             </p>
           </section>
 
@@ -87,10 +89,10 @@ const Disclaimer = () => {
           <section className="disclaimer-section">
             <h2>TMDb notice</h2>
             <p>
-              This application uses The Movie Database (TMDb) API for media
-              metadata and artwork. TMDb is a third-party service and remains
-              the source of the catalog data used in the interface. Please refer
-              to TMDb's terms for full usage details.
+              This product uses the TMDB API but is not endorsed or certified
+              by TMDB. Metadata and artwork are provided by TMDb. The TMDb logo
+              is displayed in the site footer. Please refer to TMDb's terms for
+              full usage details.
             </p>
           </section>
         </div>

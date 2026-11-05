@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import MovieRow from "../components/MovieRow";
 import Modal from "../components/Modal";
 import { useTMDB } from "../hooks/useTMDB";
+import { usePageMeta } from "../hooks/usePageMeta";
 
 const Popular = () => {
   const [movies, setMovies] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -27,11 +29,7 @@ const Popular = () => {
       : undefined,
   });
 
-  const { movieGenres, fetchCredits, buildUrl } = useTMDB();
-
-  useEffect(() => {
-    fetchMovies();
-  }, [filters]);
+  const { movieGenres, fetchCredits, fetchDiscoverMovies } = useTMDB();
 
   // Update URL when filters change
   useEffect(() => {
@@ -46,33 +44,32 @@ const Popular = () => {
     setSearchParams(params);
   }, [filters, setSearchParams]);
 
-  const fetchMovies = async () => {
+  usePageMeta({ title: "Popular movies", description: "Discover popular movies and filter by release year, genre, and rating on Streamix." });
+
+  const fetchMovies = useCallback(async (signal) => {
     try {
       setLoading(true);
       setError(null);
-      const url = buildUrl("/movie/popular", filters);
-
-      const res = await fetch(url);
-
-      if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(
-          `HTTP error! status: ${res.status}, response: ${errorText}`,
-        );
-      }
-
-      const data = await res.json();
-      setMovies(data.results || []);
+      const results = await fetchDiscoverMovies(filters, { signal });
+      if (signal?.aborted) return;
+      setMovies((current) => filters.page === 1 ? results : [...current, ...results]);
+      setHasMore(results.length > 0);
     } catch (err) {
-      console.error("Failed to fetch popular movies:", err);
+      if (err.name === "AbortError") return;
       setError(
         err?.message ||
           "Unable to load popular movies right now. Please try again.",
       );
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) setLoading(false);
     }
-  };
+  }, [fetchDiscoverMovies, filters]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchMovies(controller.signal);
+    return () => controller.abort();
+  }, [fetchMovies]);
 
   const handleItemClick = async (item) => {
     const type = "movie";
@@ -109,13 +106,8 @@ const Popular = () => {
     });
   };
 
-  if (loading) {
-    return (
-      <div className="loading-screen">
-        <div className="loading-spinner"></div>
-        <p>Loading popular movies...</p>
-      </div>
-    );
+  if (loading && movies.length === 0) {
+    return <div className="route-skeleton" aria-label="Loading popular movies"><span /><span /><span /></div>;
   }
 
   if (error) {
@@ -157,8 +149,9 @@ const Popular = () => {
       <div className="filters-section">
         <div className="filter-row">
           <div className="filter-group">
-            <label>Release Year:</label>
+              <label htmlFor="popular-year">Release Year:</label>
             <select
+                id="popular-year"
               value={filters.year || ""}
               onChange={(e) =>
                 handleFilterChange({
@@ -179,8 +172,9 @@ const Popular = () => {
           </div>
 
           <div className="filter-group">
-            <label>Genre:</label>
+              <label htmlFor="popular-genre">Genre:</label>
             <select
+                id="popular-genre"
               value={filters.with_genres || ""}
               onChange={(e) =>
                 handleFilterChange({
@@ -198,8 +192,9 @@ const Popular = () => {
           </div>
 
           <div className="filter-group">
-            <label>Minimum Rating:</label>
+              <label htmlFor="popular-rating">Minimum Rating:</label>
             <select
+                id="popular-rating"
               value={filters["vote_average.gte"] || ""}
               onChange={(e) =>
                 handleFilterChange({
@@ -230,7 +225,9 @@ const Popular = () => {
           title={`Popular Movies (${movies.length})`}
           items={movies}
           onItemClick={handleItemClick}
+          maxItems={Infinity}
         />
+        {hasMore && <button className="load-more-button" type="button" disabled={loading} onClick={() => setFilters((current) => ({ ...current, page: current.page + 1 }))}>{loading ? "Loading…" : "Load more movies"}</button>}
       </div>
 
       {isModalOpen && selectedItem && (

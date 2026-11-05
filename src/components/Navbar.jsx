@@ -6,6 +6,7 @@ const navItems = [
   { label: "Movies", to: "/movies" },
   { label: "TV Shows", to: "/tv-shows" },
   { label: "Popular", to: "/popular" },
+  { label: "My List", to: "/my-list" },
   { label: "About", to: "/about" },
   { label: "Disclaimer", to: "/disclaimer" },
 ];
@@ -30,7 +31,7 @@ const Navbar = ({ onOpenSearch }) => {
   };
 
   return (
-    <nav className={`navbar ${isScrolled ? "scrolled" : ""}`}>
+    <nav className={`navbar ${isScrolled ? "scrolled" : ""}`} aria-label="Primary navigation">
       <div className="navbar-container">
         <Link to="/" className="navbar-logo" aria-label="Streamix home page">
           <span className="brand-mark">S</span>
@@ -80,6 +81,7 @@ const Navbar = ({ onOpenSearch }) => {
             className={`menu-toggle ${isMenuOpen ? "open" : ""}`}
             onClick={toggleMenu}
             aria-label="Toggle navigation menu"
+            aria-expanded={isMenuOpen}
             type="button"
           >
             <span />

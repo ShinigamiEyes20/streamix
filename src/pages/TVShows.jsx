@@ -1,15 +1,17 @@
 // TVShows.jsx
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import MovieRow from "../components/MovieRow";
 import Modal from "../components/Modal";
 import { useTMDB } from "../hooks/useTMDB";
+import { usePageMeta } from "../hooks/usePageMeta";
 
 const TVShows = () => {
   const [tvShows, setTvShows] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -30,10 +32,6 @@ const TVShows = () => {
 
   const { tvGenres, fetchDiscoverTV, fetchCredits } = useTMDB();
 
-  useEffect(() => {
-    fetchTVShows();
-  }, [filters]);
-
   // Update URL when filters change
   useEffect(() => {
     const params = new URLSearchParams();
@@ -47,21 +45,31 @@ const TVShows = () => {
     setSearchParams(params);
   }, [filters, setSearchParams]);
 
-  const fetchTVShows = async () => {
+  usePageMeta({ title: "Browse TV shows", description: "Browse and filter TV series by genre, year, status, popularity, and rating on Streamix." });
+
+  const fetchTVShows = useCallback(async (signal) => {
     try {
       setLoading(true);
       setError(null);
-      const results = await fetchDiscoverTV(filters);
-      setTvShows(results);
+      const results = await fetchDiscoverTV(filters, { signal });
+      if (signal?.aborted) return;
+      setTvShows((current) => filters.page === 1 ? results : [...current, ...results]);
+      setHasMore(results.length > 0);
     } catch (err) {
-      console.error("Failed to fetch TV shows:", err);
+      if (err.name === "AbortError") return;
       setError(
         err?.message || "Unable to load TV shows right now. Please try again.",
       );
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) setLoading(false);
     }
-  };
+  }, [fetchDiscoverTV, filters]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchTVShows(controller.signal);
+    return () => controller.abort();
+  }, [fetchTVShows]);
 
   const handleItemClick = async (item) => {
     const type = "tv";
@@ -99,13 +107,8 @@ const TVShows = () => {
     });
   };
 
-  if (loading) {
-    return (
-      <div className="loading-screen">
-        <div className="loading-spinner"></div>
-        <p>Loading TV shows...</p>
-      </div>
-    );
+  if (loading && tvShows.length === 0) {
+    return <div className="route-skeleton" aria-label="Loading TV shows"><span /><span /><span /></div>;
   }
 
   if (error) {
@@ -241,7 +244,9 @@ const TVShows = () => {
           title={`TV Shows (${tvShows.length})`}
           items={tvShows}
           onItemClick={handleItemClick}
+          maxItems={Infinity}
         />
+        {hasMore && <button className="load-more-button" type="button" disabled={loading} onClick={() => setFilters((current) => ({ ...current, page: current.page + 1 }))}>{loading ? "Loading…" : "Load more TV shows"}</button>}
       </div>
 
       {isModalOpen && selectedItem && (

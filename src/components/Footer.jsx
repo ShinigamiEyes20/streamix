@@ -19,6 +19,7 @@ const Footer = () => {
             <Link to="/movies">Movies</Link>
             <Link to="/tv-shows">TV Shows</Link>
             <Link to="/popular">Popular</Link>
+            <Link to="/my-list">My List</Link>
           </div>
 
           <div className="footer-column">
@@ -35,7 +36,10 @@ const Footer = () => {
         </div>
 
         <div className="footer-meta">
-          <p>© {currentYear} Streamix. All rights reserved.</p>
+          <p>© {currentYear} Streamix. Streamix hosts no media. Metadata and artwork are provided by TMDb. This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
+          <a className="tmdb-attribution" href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer" aria-label="The Movie Database (TMDb), opens in a new tab">
+            <img src="https://www.themoviedb.org/assets/2/v4/logos/att/green.svg" alt="The Movie Database (TMDb)" width="120" height="24" loading="lazy" />
+          </a>
         </div>
       </div>
     </footer>

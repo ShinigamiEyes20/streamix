@@ -14,9 +14,12 @@ export default defineConfig(({ mode }) => {
       react(),
       VitePWA({
         registerType: "autoUpdate",
+        injectRegister: "script",
         workbox: {
+          navigateFallback: "/index.html",
+          navigateFallbackDenylist: [/^\/api\//],
           globPatterns: [
-            "**/*.{js,jsx,css,html,ico,png,jpg,jpeg,webp,svg,woff,woff2,ttf,eot,xml,txt}",
+            "**/*.{js,css,html,ico,svg,xml,txt}",
           ],
         },
       }),
@@ -44,6 +47,19 @@ export default defineConfig(({ mode }) => {
       target: "es2022",
       outDir: "dist",
       assetsDir: "assets",
+      minify: "esbuild",
+      cssMinify: true,
+      chunkSizeWarningLimit: 700,
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (!id.includes("node_modules")) return undefined;
+            if (id.includes("react-router") || id.includes("@remix-run")) return "router-vendor";
+            if (id.includes("react-dom") || id.includes("/react/")) return "react-vendor";
+            return "vendor";
+          },
+        },
+      },
     },
     server: {
       proxy: {

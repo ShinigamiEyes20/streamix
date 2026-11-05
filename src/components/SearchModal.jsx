@@ -1,165 +1,88 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import MovieCard from "./MovieCard";
+import { useDebounce } from "../hooks/useDebounce";
 
-const SearchModal = ({
-  searchResults,
-  onSearch,
-  onClose,
-  onItemClick,
-  isSearching,
-  initialQuery = "",
-}) => {
+const RECENT_KEY = "streamix:recent-searches:v1";
+function readRecent() {
+  try {
+    const value = JSON.parse(localStorage.getItem(RECENT_KEY));
+    return Array.isArray(value) ? value.filter((item) => typeof item === "string").slice(0, 5) : [];
+  } catch { return []; }
+}
+
+export default function SearchModal({ searchResults = [], onSearch, onClose, onItemClick, isSearching, initialQuery = "" }) {
   const [query, setQuery] = useState(initialQuery);
+  const [recent, setRecent] = useState(readRecent);
   const inputRef = useRef(null);
-  const debounceTimer = useRef(null);
-  const hasSearchedRef = useRef(false);
+  const dialogRef = useRef(null);
+  const initialFocus = useRef(document.activeElement);
+  const debouncedQuery = useDebounce(query, 300);
 
   useEffect(() => {
     setQuery(initialQuery);
-    hasSearchedRef.current = false;
-    if (initialQuery.trim()) {
-      hasSearchedRef.current = true;
-      onSearch?.(initialQuery);
-    }
   }, [initialQuery]);
 
   useEffect(() => {
+    const returnFocus = initialFocus.current;
     inputRef.current?.focus();
-  }, []);
-
-  useEffect(() => {
-    const previousOverflow = document.body.style.overflow;
-    const previousOverflowY = document.body.style.overflowY;
+    const oldOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    document.body.style.overflowY = "hidden";
-
     return () => {
-      document.body.style.overflow = previousOverflow;
-      document.body.style.overflowY = previousOverflowY;
+      document.body.style.overflow = oldOverflow;
+      returnFocus?.focus?.();
     };
   }, []);
 
-  const debouncedSearch = useCallback(
-    (value) => {
-      if (debounceTimer.current) clearTimeout(debounceTimer.current);
-      debounceTimer.current = setTimeout(() => {
-        const trimmed = value.trim();
-        // Only search if query is empty (to reset) or has 2+ characters
-        if (trimmed.length === 0 || trimmed.length >= 2) {
-          onSearch?.(value);
-        }
-      }, 450);
-    },
-    [onSearch],
-  );
+  const remember = useCallback((value) => {
+    const term = value.trim();
+    if (term.length < 2) return;
+    const next = [term, ...readRecent().filter((item) => item.toLowerCase() !== term.toLowerCase())].slice(0, 5);
+    setRecent(next);
+    try { localStorage.setItem(RECENT_KEY, JSON.stringify(next)); } catch { /* Optional personalization. */ }
+  }, []);
 
-  const handleInputChange = (e) => {
-    const value = e.target.value;
-    setQuery(value);
-    debouncedSearch(value);
+  useEffect(() => {
+    const term = debouncedQuery.trim();
+    if (term.length >= 2) {
+      onSearch?.(term);
+      remember(term);
+    } else onSearch?.("");
+  }, [debouncedQuery, onSearch, remember]);
+
+  const handleKeyDown = (event) => {
+    if (event.key === "Escape") { event.preventDefault(); onClose(); return; }
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      const cards = [...(dialogRef.current?.querySelectorAll(".results-grid .movie-card") || [])];
+      if (!cards.length) return;
+      event.preventDefault();
+      const index = cards.indexOf(document.activeElement);
+      const next = event.key === "ArrowDown" ? (index + 1) % cards.length : (index <= 0 ? cards.length - 1 : index - 1);
+      cards[next].focus();
+      return;
+    }
+    if (event.key === "Tab") {
+      const focusable = [...(dialogRef.current?.querySelectorAll("button:not([disabled]), input, [tabindex='0']") || [])];
+      if (!focusable.length) return;
+      if (event.shiftKey && document.activeElement === focusable[0]) { event.preventDefault(); focusable.at(-1).focus(); }
+      else if (!event.shiftKey && document.activeElement === focusable.at(-1)) { event.preventDefault(); focusable[0].focus(); }
+    }
   };
 
-  useEffect(
-    () => () => {
-      if (debounceTimer.current) clearTimeout(debounceTimer.current);
-    },
-    [],
-  );
-
-  const handleItemSelect = (item) => {
-    onItemClick?.(item);
-    onClose();
-  };
-
-  const handleBackdropClick = (e) => {
-    if (e.target === e.currentTarget) onClose();
-  };
-
-  const handleClose = () => {
-    setQuery("");
-    onClose();
-  };
-
+  const close = () => onClose();
   return (
-    <div
-      className="search-modal-overlay"
-      onClick={handleBackdropClick}
-      role="dialog"
-      aria-modal="true"
-      aria-label="Search Streamix"
-    >
-      <div className="search-modal-content">
+    <div className="search-modal-overlay" onClick={(event) => { if (event.target === event.currentTarget) close(); }} onKeyDown={handleKeyDown} role="presentation">
+      <section ref={dialogRef} className="search-modal-content" role="dialog" aria-modal="true" aria-label="Search Streamix">
         <div className="search-modal-header">
-          <div className="search-input-container">
-            <span className="search-input-icon">⌕</span>
-            <input
-              ref={inputRef}
-              type="text"
-              placeholder="Search movies and TV shows..."
-              value={query}
-              onChange={handleInputChange}
-              className="search-input"
-              autoComplete="off"
-            />
-            {query && (
-              <button
-                type="button"
-                className="search-clear-button"
-                onClick={() => {
-                  setQuery("");
-                  onSearch?.("");
-                }}
-                aria-label="Clear search"
-              >
-                Clear
-              </button>
-            )}
-          </div>
-          <button
-            className="search-close"
-            onClick={handleClose}
-            aria-label="Close search"
-          >
-            ×
-          </button>
+          <div className="search-input-container"><span className="search-input-icon" aria-hidden="true">⌕</span><input ref={inputRef} type="search" placeholder="Search movies and TV shows..." value={query} onChange={(event) => setQuery(event.target.value)} className="search-input" autoComplete="off" aria-label="Search titles" aria-controls="search-results" /><button type="button" className="search-close" onClick={close} aria-label="Close search">×</button></div>
         </div>
-
-        <div className="search-results">
-          {searchResults.length > 0 ? (
-            <div className="results-grid-wrapper">
-              <div className="results-grid">
-                {searchResults.map((item) => (
-                  <MovieCard
-                    key={`${item.id}-${item.media_type}`}
-                    item={item}
-                    onClick={() => handleItemSelect(item)}
-                  />
-                ))}
-              </div>
-              {isSearching && (
-                <div className="search-loading-overlay">
-                  <div className="mini-spinner" />
-                </div>
-              )}
-            </div>
-          ) : isSearching ? (
-            <div className="search-state-box">
-              <div className="mini-spinner" />
-              <p>Searching for titles...</p>
-            </div>
-          ) : query ? (
-            <div className="search-state-box empty">
-              <p>No results found for "{query}".</p>
-            </div>
-          ) : (
-            <div className="search-state-box placeholder">
-              <p>Start typing to explore movies and shows.</p>
-            </div>
-          )}
+        <div id="search-results" className="search-results" aria-live="polite" aria-busy={isSearching}>
+          {!query && recent.length > 0 && <div className="recent-searches"><span>Recent searches</span>{recent.map((term) => <button key={term} type="button" onClick={() => setQuery(term)}>{term}</button>)}</div>}
+          {searchResults.length > 0 ? <div className="results-grid-wrapper"><div className="results-grid">{searchResults.map((item) => <MovieCard key={`${item.id}-${item.media_type}`} item={item} onClick={() => { onItemClick?.(item); close(); }} />)}</div>{isSearching && <p className="search-progress" role="status">Updating results…</p>}</div>
+            : isSearching ? <div className="search-state-box" role="status">Searching titles…</div>
+            : query.trim().length >= 2 ? <div className="search-state-box empty">No results found for “{query}”.</div>
+            : <div className="search-state-box placeholder">Type at least two characters to find movies and TV shows.</div>}
         </div>
-      </div>
+      </section>
     </div>
   );
-};
-
-export default SearchModal;
+}

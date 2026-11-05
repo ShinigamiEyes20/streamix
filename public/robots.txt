@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /my-list
+Sitemap: https://streamix.vercel.app/sitemap.xml

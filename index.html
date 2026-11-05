@@ -2,90 +2,40 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Streamix | Your world of entertainment.</title>
-    <link rel="icon" type="image/png" href="/logo/streamix-s.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="Streamix brings together trending movies, TV shows, and entertainment discovery in one cinematic experience."
-    />
-    <meta
-      name="keywords"
-      content="Streamix, movies, TV shows, streaming, entertainment, watch online, trending content"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#050816" />
+    <meta name="description" content="Discover movies and TV, explore official trailers, and find regional availability through licensed providers." />
+    <meta name="robots" content="index,follow" />
     <meta name="author" content="Streamix" />
-    <meta name="robots" content="index, follow" />
-
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://streamix.vercel.app/" />
-    <meta
-      property="og:title"
-      content="Streamix | Your world of entertainment."
-    />
-    <meta
-      property="og:description"
-      content="Explore trending movies, TV shows, and entertainment discovery with the modern Streamix experience."
-    />
-    <meta property="og:image" content="/logo/streamix-s.png" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Streamix logo" />
-    <meta property="og:site_name" content="Streamix" />
-
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://streamix.vercel.app/" />
-    <meta
-      property="twitter:title"
-      content="Streamix | Your world of entertainment."
-    />
-    <meta
-      property="twitter:description"
-      content="Explore trending movies, TV shows, and entertainment discovery with the modern Streamix experience."
-    />
-    <meta property="twitter:image" content="/logo/streamix-s.png" />
-    <meta property="twitter:image:alt" content="Streamix logo" />
-
-    <meta name="theme-color" content="#0b1020" />
-    <meta http-equiv="Cache-Control" content="public, max-age=3600" />
-    <meta http-equiv="Expires" content="1" />
+    <title>Streamix | Movie and TV discovery</title>
     <link rel="canonical" href="https://streamix.vercel.app/" />
-    <link rel="icon" type="image/png" href="/logo/streamix-s.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png" />
+    <link rel="apple-touch-icon" href="/icons/apple-icon.png" />
     <link rel="manifest" href="/config/manifest.json" />
-
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
-
+    <link rel="preconnect" href="https://image.tmdb.org" />
+    <link rel="dns-prefetch" href="//image.tmdb.org" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Streamix" />
+    <meta property="og:url" content="https://streamix.vercel.app/" />
+    <meta property="og:title" content="Streamix | Movie and TV discovery" />
+    <meta property="og:description" content="Discover movies and TV, explore official trailers, and find regional availability through licensed providers." />
+    <meta property="og:image" content="https://streamix.vercel.app/logo/streamix-s.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Streamix | Movie and TV discovery" />
+    <meta name="twitter:description" content="Discover movies and TV, explore official trailers, and find regional availability through licensed providers." />
+    <meta name="twitter:image" content="https://streamix.vercel.app/logo/streamix-s.png" />
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-      html {
-        background: #050816;
-      }
-      body {
-        font-family:
-          "Inter",
-          -apple-system,
-          BlinkMacSystemFont,
-          "Segoe UI",
-          sans-serif;
-        background: #050816;
-        color: #f8fafc;
-        overflow-x: hidden;
-      }
-      #root {
-        min-height: 100vh;
-      }
+      * { box-sizing: border-box; }
+      html { background: #050816; scroll-behavior: smooth; }
+      body { margin: 0; min-width: 320px; min-height: 100vh; font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #050816; color: #f8fafc; overflow-x: hidden; }
+      #root { min-height: 100vh; }
+      @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
     </style>
   </head>
   <body>
     <div id="root"></div>
+    <noscript>Streamix needs JavaScript to display movie and TV discovery results.</noscript>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

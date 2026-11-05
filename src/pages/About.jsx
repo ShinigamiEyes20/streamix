@@ -1,7 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { usePageMeta } from "../hooks/usePageMeta";
 
 const About = () => {
+  usePageMeta({ title: "About Streamix", description: "Learn about Streamix, a TMDb-powered movie and TV discovery app that does not host media." });
   return (
     <div className="static-page">
       <div className="static-container">
@@ -14,8 +16,8 @@ const About = () => {
             <p>
               Streamix is a modern movie and TV discovery experience designed
               for people who want a polished, distraction-free way to browse
-              trending titles, find something new, and jump into a watch session
-              quickly.
+              trending titles, find something new, and check official viewing
+              options in their region.
             </p>
           </section>
 
@@ -71,9 +73,9 @@ const About = () => {
             <p>
               Streamix is designed to make exploring entertainment easier and
               more enjoyable. The app does not claim to own, host, or license
-              any titles it surfaces. Where content is available via third-party
-              services or through the TMDb metadata platform, all rights and
-              responsibilities remain with their respective owners.
+              any titles it surfaces. Streamix hosts no media and does not embed
+              unlicensed streaming sources. Provider availability is presented
+              as discovery information; confirm terms with each official service.
             </p>
             <p>
               We encourage users to support creators and official streaming
@@ -84,10 +86,9 @@ const About = () => {
           <section className="about-section">
             <h2>TMDb attribution</h2>
             <p>
-              This project uses The Movie Database (TMDb) API for movie and TV
-              metadata, artwork, and catalog information. Streamix is not
-              affiliated with or sponsored by TMDb, but it relies on TMDb data
-              under the applicable service terms.
+              This product uses the TMDB API but is not endorsed or certified
+              by TMDB. Movie and TV metadata and artwork are provided by TMDb.
+              The TMDb logo attribution appears in the site footer.
             </p>
           </section>
         </div>
