@@ -5,6 +5,7 @@ import Modal from "../components/Modal";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 import { usePageMeta } from "../hooks/usePageMeta";
 import { useTMDB } from "../hooks/useTMDB";
+import { toListItem } from "../lib/listItems";
 import "./Home.css";
 
 export default function Home() {
@@ -21,7 +22,7 @@ export default function Home() {
   const selectionRequestRef = useRef(0);
   const hasLoadedRef = useRef(false);
   const { movieGenres, tvGenres, fetchTrending, fetchTrendingAnime, fetchNowPlaying, fetchCredits } = useTMDB();
-  const [myList] = useLocalStorage("streamix:my-list", []);
+  const [myList, setMyList] = useLocalStorage("streamix:my-list", []);
   const [continueItems] = useLocalStorage("streamix:continue", []);
   usePageMeta({ title: "Discover movies and TV", description: "Discover trending movies, TV series, official trailers, and where to watch through licensed providers." });
 
@@ -73,6 +74,13 @@ export default function Home() {
     selectionRequestRef.current += 1;
     setSelectedItem(null);
   }, []);
+  const toggleMyList = useCallback((item) => {
+    const type = item.media_type || item.type || (item.first_air_date ? "tv" : "movie");
+    const listItem = toListItem(item, type);
+    setMyList((current) => current.some((saved) => saved.id === listItem.id && saved.type === listItem.type)
+      ? current.filter((saved) => !(saved.id === listItem.id && saved.type === listItem.type))
+      : [listItem, ...current]);
+  }, [setMyList]);
 
   if (loading) return <div className="home-page"><div className="hero-skeleton" aria-label="Loading featured titles"><span /><span /></div><div className="content-rows"><div className="row-skeleton" /><div className="row-skeleton" /></div></div>;
   if (error) return <div className="error-page"><div className="error-content"><h1>Unable to load titles</h1><p>{error}</p><button className="back-home-btn" onClick={() => setRetryKey((value) => value + 1)}>Try again</button></div></div>;
@@ -81,14 +89,14 @@ export default function Home() {
     {nowPlayingMovies.length > 0 && <BannerSlider movies={nowPlayingMovies.slice(0, 10)} onItemClick={handleItemClick} />}
     <div className="time-window-toggle-container"><div className="time-window-toggle"><span className={timeWindow === "week" ? "toggle-label active" : "toggle-label"}>This Week</span><button type="button" className={`toggle-switch ${timeWindow}`} onClick={() => setTimeWindow((value) => value === "week" ? "day" : "week")} aria-label={`Switch to ${timeWindow === "week" ? "today" : "this week"} trending`} aria-pressed={timeWindow === "day"}><span className="toggle-slider" /></button><span className={timeWindow === "day" ? "toggle-label active" : "toggle-label"}>Today</span></div></div>
     <div className="content-rows">
-      {continueItems.length > 0 && <MovieRow title="Recently viewed" items={continueItems} onItemClick={handleItemClick} />}
-      {myList.length > 0 && <MovieRow title="My List" items={myList} onItemClick={handleItemClick} />}
-      {nowPlayingMovies.length > 0 && <MovieRow title="Now Playing" items={nowPlayingMovies.slice(0, 12)} onItemClick={handleItemClick} rowType="movie" />}
+      {continueItems.length > 0 && <MovieRow title="Recently viewed" items={continueItems} onItemClick={handleItemClick} myList={myList} onToggleSave={toggleMyList} />}
+      {myList.length > 0 && <MovieRow title="My List" items={myList} onItemClick={handleItemClick} myList={myList} onToggleSave={toggleMyList} />}
+      {nowPlayingMovies.length > 0 && <MovieRow title="Now Playing" items={nowPlayingMovies.slice(0, 12)} onItemClick={handleItemClick} rowType="movie" myList={myList} onToggleSave={toggleMyList} />}
       <div className={rowsLoading ? "trending-rows rows-loading" : "trending-rows"}>
-        {trendingMovies.length > 0 && <MovieRow title={`Trending Movies ${timeWindow === "day" ? "Today" : "This Week"}`} items={trendingMovies.slice(0, 18)} onItemClick={handleItemClick} rowType="movie" />}
-        {trendingTV.length > 0 && <MovieRow title={`Trending TV ${timeWindow === "day" ? "Today" : "This Week"}`} items={trendingTV.slice(0, 18)} onItemClick={handleItemClick} rowType="tv" />}
+        {trendingMovies.length > 0 && <MovieRow title={`Trending Movies ${timeWindow === "day" ? "Today" : "This Week"}`} items={trendingMovies.slice(0, 18)} onItemClick={handleItemClick} rowType="movie" myList={myList} onToggleSave={toggleMyList} />}
+        {trendingTV.length > 0 && <MovieRow title={`Trending TV ${timeWindow === "day" ? "Today" : "This Week"}`} items={trendingTV.slice(0, 18)} onItemClick={handleItemClick} rowType="tv" myList={myList} onToggleSave={toggleMyList} />}
       </div>
-      {trendingAnime.length > 0 && <MovieRow title="Trending Anime" items={trendingAnime.slice(0, 12)} onItemClick={handleItemClick} />}
+      {trendingAnime.length > 0 && <MovieRow title="Trending Anime" items={trendingAnime.slice(0, 12)} onItemClick={handleItemClick} myList={myList} onToggleSave={toggleMyList} />}
     </div>
     {selectedItem && <Modal item={selectedItem} onClose={closeModal} />}
   </div>;

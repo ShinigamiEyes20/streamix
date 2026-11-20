@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
-import { Route, Routes, useNavigate } from "react-router-dom";
+import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import SearchModal from "./components/SearchModal";
 import Footer from "./components/Footer";
@@ -19,6 +19,17 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 
 function RouteFallback() {
   return <div className="route-skeleton" aria-label="Loading page"><span /><span /><span /></div>;
+}
+
+function ScrollToTop() {
+  const { pathname, search, hash } = useLocation();
+
+  useEffect(() => {
+    if (hash) return;
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, [pathname, search, hash]);
+
+  return null;
 }
 
 function App() {
@@ -103,6 +114,7 @@ function App() {
 
   return (
     <div className="App">
+      <ScrollToTop />
       <a className="skip-link" href="#main-content">Skip to content</a>
       <Navbar onOpenSearch={openSearch} />
       {!isOnline && <p className="network-notice" role="status">You’re offline. Previously loaded titles may still be available.</p>}

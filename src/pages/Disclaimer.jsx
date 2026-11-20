@@ -54,32 +54,36 @@ const Disclaimer = () => {
               <a
                 href="https://www.netflix.com"
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className="platform-link"
+                aria-label="Netflix (opens in a new tab)"
               >
                 Netflix
               </a>
               <a
                 href="https://www.disneyplus.com"
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className="platform-link"
+                aria-label="Disney+ (opens in a new tab)"
               >
                 Disney+
               </a>
               <a
                 href="https://www.hbomax.com"
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className="platform-link"
+                aria-label="HBO Max (opens in a new tab)"
               >
                 HBO Max
               </a>
               <a
                 href="https://www.primevideo.com"
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className="platform-link"
+                aria-label="Prime Video (opens in a new tab)"
               >
                 Prime Video
               </a>
@@ -88,12 +92,7 @@ const Disclaimer = () => {
 
           <section className="disclaimer-section">
             <h2>TMDb notice</h2>
-            <p>
-              This product uses the TMDB API but is not endorsed or certified
-              by TMDB. Metadata and artwork are provided by TMDb. The TMDb logo
-              is displayed in the site footer. Please refer to TMDb's terms for
-              full usage details.
-            </p>
+            <p>Metadata and artwork are provided by TMDb. See the footer for the full TMDb attribution.</p>
           </section>
         </div>
 

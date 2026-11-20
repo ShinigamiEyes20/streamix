@@ -60,7 +60,7 @@ export default function SearchModal({ searchResults = [], onSearch, onClose, onI
       return;
     }
     if (event.key === "ArrowDown" || event.key === "ArrowUp") {
-      const cards = [...(dialogRef.current?.querySelectorAll(".results-grid .movie-card") || [])];
+      const cards = [...(dialogRef.current?.querySelectorAll(".results-grid .movie-card .card-main") || [])];
       if (!cards.length) return;
       event.preventDefault();
       const index = cards.indexOf(document.activeElement);

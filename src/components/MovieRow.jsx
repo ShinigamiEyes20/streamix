@@ -2,7 +2,7 @@ import { memo, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import MovieCard from "./MovieCard";
 
-const MovieRow = memo(function MovieRow({ title, items = [], onItemClick, rowType, maxItems = 24 }) {
+const MovieRow = memo(function MovieRow({ title, items = [], onItemClick, rowType, maxItems = 24, myList = [], onToggleSave }) {
   const trackRef = useRef(null);
   const navigate = useNavigate();
   const displayItems = useMemo(() => items.slice(0, maxItems), [items, maxItems]);
@@ -17,7 +17,13 @@ const MovieRow = memo(function MovieRow({ title, items = [], onItemClick, rowTyp
       {rowType && <button type="button" className="view-all-link" onClick={handleViewAll} aria-label={`View all ${title}`}>View All <span aria-hidden="true">→</span></button>}
     </div></div>
     <div className="row-track" ref={trackRef} tabIndex={0} aria-label={`${title} titles`} onKeyDown={(event) => { if (event.key === "ArrowLeft" || event.key === "ArrowRight") { event.preventDefault(); scroll(event.key === "ArrowLeft" ? -1 : 1); } }}>
-      {displayItems.map((item) => <MovieCard key={`${item.media_type || item.type || rowType || "title"}-${item.id}`} item={item} onClick={() => onItemClick?.(item)} />)}
+      {displayItems.map((item) => <MovieCard
+        key={`${item.media_type || item.type || rowType || "title"}-${item.id}`}
+        item={item}
+        onClick={() => onItemClick?.(item)}
+        isSaved={myList.some((saved) => saved.id === item.id && saved.type === (item.media_type || item.type || rowType))}
+        onToggleSave={onToggleSave}
+      />)}
     </div>
   </section>;
 });

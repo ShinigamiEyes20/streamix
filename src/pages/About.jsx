@@ -45,25 +45,32 @@ const About = () => {
 
               <div className="feature-card">
                 <div className="feature-icon">🔍</div>
-                <h3>Smart search</h3>
-                <p>
-                  Search across movies and TV shows with a fast, easy interface.
-                </p>
+                <h3>Search with keyboard shortcuts</h3>
+                <p>Open search with “/” or Ctrl+K and find movies and TV shows.</p>
               </div>
 
               <div className="feature-card">
-                <div className="feature-icon">📱</div>
-                <h3>Responsive design</h3>
-                <p>
-                  Enjoy the same polished experience across desktop and mobile
-                  screens.
-                </p>
+                <div className="feature-icon">📺</div>
+                <h3>Where to watch</h3>
+                <p>Check legal availability by region using provider data from TMDb.</p>
               </div>
 
               <div className="feature-card">
-                <div className="feature-icon">⚡</div>
-                <h3>Fast browsing</h3>
-                <p>Built for a clean, lightweight streaming discovery flow.</p>
+                <div className="feature-icon">▶</div>
+                <h3>Official trailers</h3>
+                <p>Find official trailers for titles when they are available.</p>
+              </div>
+
+              <div className="feature-card">
+                <div className="feature-icon">♡</div>
+                <h3>My List and Recently viewed</h3>
+                <p>These are saved in your browser; nothing from these lists leaves your device.</p>
+              </div>
+
+              <div className="feature-card">
+                <div className="feature-icon">🎭</div>
+                <h3>Cast and actor pages</h3>
+                <p>Explore cast details and the movies and shows associated with actors.</p>
               </div>
             </div>
           </section>
@@ -85,11 +92,7 @@ const About = () => {
 
           <section className="about-section">
             <h2>TMDb attribution</h2>
-            <p>
-              This product uses the TMDB API but is not endorsed or certified
-              by TMDB. Movie and TV metadata and artwork are provided by TMDb.
-              The TMDb logo attribution appears in the site footer.
-            </p>
+            <p>Movie and TV metadata and artwork are provided by TMDb. See the footer for the full TMDb attribution.</p>
           </section>
         </div>
 

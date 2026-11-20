@@ -1,12 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, NavLink } from "react-router-dom";
 
-const navItems = [
+const desktopNavItems = [
   { label: "Home", to: "/" },
   { label: "Movies", to: "/movies" },
   { label: "TV Shows", to: "/tv-shows" },
   { label: "Popular", to: "/popular" },
   { label: "My List", to: "/my-list" },
+];
+
+const sideNavItems = [
+  ...desktopNavItems,
   { label: "About", to: "/about" },
   { label: "Disclaimer", to: "/disclaimer" },
 ];
@@ -14,21 +18,32 @@ const navItems = [
 const Navbar = ({ onOpenSearch }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [searchValue, setSearchValue] = useState("");
+  const menuToggleRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 12);
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    if (!isMenuOpen) return undefined;
+    const menuToggle = menuToggleRef.current;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") setIsMenuOpen(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+      menuToggle?.focus();
+    };
+  }, [isMenuOpen]);
+
   const toggleMenu = () => setIsMenuOpen((open) => !open);
   const closeMenu = () => setIsMenuOpen(false);
-
-  const handleSearchSubmit = (event) => {
-    event.preventDefault();
-    onOpenSearch?.(searchValue);
-  };
 
   return (
     <nav className={`navbar ${isScrolled ? "scrolled" : ""}`} aria-label="Primary navigation">
@@ -38,8 +53,8 @@ const Navbar = ({ onOpenSearch }) => {
           <span className="brand-word">STREAMIX</span>
         </Link>
 
-        <div className="navbar-links" aria-label="Primary navigation">
-          {navItems.map((item) => (
+        <div className="navbar-links">
+          {desktopNavItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
@@ -55,33 +70,28 @@ const Navbar = ({ onOpenSearch }) => {
         </div>
 
         <div className="navbar-tools">
-          <form className="navbar-search" onSubmit={handleSearchSubmit}>
-            <span className="search-icon" aria-hidden="true">
-              ⌕
-            </span>
-            <input
-              type="search"
-              value={searchValue}
-              onChange={(event) => setSearchValue(event.target.value)}
-              placeholder="Search movies & TV shows..."
-              aria-label="Search movies and TV shows"
-            />
-          </form>
+          <button type="button" className="navbar-search" onClick={() => onOpenSearch?.("")} aria-label="Search movies and TV shows">
+            <span className="search-icon" aria-hidden="true">⌕</span>
+            <span>Search movies &amp; TV shows…</span>
+            <kbd aria-hidden="true">/</kbd>
+          </button>
 
           <button
             type="button"
             className="mobile-search-trigger"
-            onClick={() => onOpenSearch?.(searchValue)}
+            onClick={() => onOpenSearch?.("")}
             aria-label="Open search"
           >
             ⌕
           </button>
 
           <button
+            ref={menuToggleRef}
             className={`menu-toggle ${isMenuOpen ? "open" : ""}`}
             onClick={toggleMenu}
             aria-label="Toggle navigation menu"
             aria-expanded={isMenuOpen}
+            aria-controls="navbar-side-menu"
             type="button"
           >
             <span />
@@ -90,12 +100,12 @@ const Navbar = ({ onOpenSearch }) => {
           </button>
         </div>
 
-        <div className={`side-menu ${isMenuOpen ? "open" : ""}`}>
+        <div id="navbar-side-menu" className={`side-menu ${isMenuOpen ? "open" : ""}`} inert={!isMenuOpen} aria-hidden={!isMenuOpen}>
           <div className="side-menu-header">
             <h3>Menu</h3>
           </div>
           <div className="side-menu-links">
-            {navItems.map((item) => (
+            {sideNavItems.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
@@ -112,8 +122,9 @@ const Navbar = ({ onOpenSearch }) => {
               type="button"
               className="nav-link nav-search-button"
               onClick={() => {
+                menuToggleRef.current?.focus();
                 closeMenu();
-                onOpenSearch?.(searchValue);
+                onOpenSearch?.("");
               }}
             >
               Search
