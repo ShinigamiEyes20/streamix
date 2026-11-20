@@ -1,17 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import MovieCard from "../components/MovieCard";
+import Toast from "../components/Toast";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 import { usePageMeta } from "../hooks/usePageMeta";
-import { useTMDB, BACKDROP_URL, POSTER_URL } from "../hooks/useTMDB";
+import { useTMDB, BACKDROP_URL, POSTER_URL, PROFILE_URL } from "../hooks/useTMDB";
 import { getOfficialTrailerEmbedUrl, TRAILER_IFRAME_POLICY } from "../lib/players";
+import { toListItem } from "../lib/listItems";
 
 const validId = (value) => /^\d{1,10}$/.test(value || "");
 const mediaTitle = (item) => item?.title || item?.name || "Untitled";
-const getRegion = () => {
-  const localeRegion = navigator.language?.split("-").at(-1)?.toUpperCase();
-  return /^[A-Z]{2}$/.test(localeRegion || "") ? localeRegion : "US";
-};
 
 export default function Watch() {
   const location = useLocation();
@@ -21,20 +19,22 @@ export default function Watch() {
   const id = params.get("id");
   const validRoute = ["movie", "tv"].includes(type) && validId(id);
   const {
-    fetchDetails, fetchCredits, fetchMovieRecommendations, fetchTVRecommendations,
+    fetchDetails, fetchCreditsDetailed, fetchMovieRecommendations, fetchTVRecommendations,
     fetchWatchProviders, fetchVideos, fetchSeasonEpisodes,
   } = useTMDB();
   const [detail, setDetail] = useState(null);
   const [cast, setCast] = useState([]);
+  const [directors, setDirectors] = useState([]);
   const [similar, setSimilar] = useState([]);
   const [providers, setProviders] = useState(null);
-  const [providerRegion, setProviderRegion] = useState(getRegion);
+  const [providerRegion, setProviderRegion] = useLocalStorage("streamix:region", "PH");
   const [trailer, setTrailer] = useState(null);
   const [showTrailer, setShowTrailer] = useState(false);
   const [activeSeason, setActiveSeason] = useState("");
   const [episodes, setEpisodes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [toast, setToast] = useState("");
   const trailerCloseRef = useRef(null);
   const seasonControllerRef = useRef(null);
   const [myList, setMyList] = useLocalStorage("streamix:my-list", []);
@@ -53,44 +53,50 @@ export default function Watch() {
     }
     setLoading(true);
     setError("");
-    try {
-      const data = await fetchDetails(type, id, { signal });
+    const detailsPromise = fetchDetails(type, id, { signal });
+    detailsPromise.then((data) => {
       if (signal?.aborted) return;
       setDetail(data);
-      const [creditsResult, recommendationsResult, providerResult, videosResult] = await Promise.allSettled([
-        fetchCredits(type, id, { signal }),
-        type === "movie" ? fetchMovieRecommendations(id, { signal }) : fetchTVRecommendations(id, { signal }),
-        fetchWatchProviders(type, id, { signal }),
-        fetchVideos(type, id, { signal }),
-      ]);
-      if (signal?.aborted) return;
-      setCast(creditsResult.status === "fulfilled" ? creditsResult.value : []);
-      setSimilar(recommendationsResult.status === "fulfilled" ? recommendationsResult.value.slice(0, 12) : []);
-
-      const region = getRegion();
-      if (signal?.aborted) return;
-      const regions = providerResult.status === "fulfilled" ? providerResult.value.results || {} : {};
-      const availableRegion = [region, "PH", "US"].find((candidate) => regions[candidate]);
-      setProviderRegion(availableRegion || region);
-      setProviders(regions);
-      const videos = videosResult.status === "fulfilled" ? videosResult.value : [];
-      setTrailer(videos.find((video) => video.site === "YouTube" && video.type === "Trailer" && video.official) || videos.find((video) => video.site === "YouTube" && video.type === "Trailer") || null);
-
+      setLoading(false);
       if (type === "tv") {
         const firstSeason = (data.seasons || []).find((season) => season.episode_count > 0);
         if (firstSeason) {
           setActiveSeason(String(firstSeason.season_number));
-          const seasonEpisodes = await fetchSeasonEpisodes(id, firstSeason.season_number, { signal });
-          if (signal?.aborted) return;
-          setEpisodes(seasonEpisodes);
+          fetchSeasonEpisodes(id, firstSeason.season_number, { signal }).then((seasonEpisodes) => {
+            if (!signal?.aborted) setEpisodes(seasonEpisodes);
+          }).catch((requestError) => {
+            if (requestError.name !== "AbortError") setEpisodes([]);
+          });
         }
       }
-    } catch (requestError) {
-      if (requestError.name !== "AbortError") setError(requestError.message || "Unable to load title details.");
-    } finally {
-      if (!signal?.aborted) setLoading(false);
+    }).catch((requestError) => {
+      if (signal?.aborted) return;
+      setError(requestError?.message || "Unable to load title details.");
+      setLoading(false);
+    });
+
+    const [, creditsResult, recommendationsResult, providerResult, videosResult] = await Promise.allSettled([
+      detailsPromise,
+      fetchCreditsDetailed(type, id, { signal }),
+      type === "movie" ? fetchMovieRecommendations(id, { signal }) : fetchTVRecommendations(id, { signal }),
+      fetchWatchProviders(type, id, { signal }),
+      fetchVideos(type, id, { signal }),
+    ]);
+    if (signal?.aborted) return;
+    if (creditsResult.status === "fulfilled") {
+      setCast(creditsResult.value.cast || []);
+      setDirectors(creditsResult.value.directors || []);
+    } else {
+      setCast([]);
+      setDirectors([]);
     }
-  }, [fetchCredits, fetchDetails, fetchMovieRecommendations, fetchSeasonEpisodes, fetchTVRecommendations, fetchVideos, fetchWatchProviders, id, type, validRoute]);
+    setSimilar(recommendationsResult.status === "fulfilled" ? recommendationsResult.value.slice(0, 12) : []);
+    const regions = providerResult.status === "fulfilled" ? providerResult.value.results || {} : {};
+    setProviders(regions);
+    const videos = videosResult.status === "fulfilled" ? videosResult.value : [];
+    setTrailer(videos.find((video) => video.site === "YouTube" && video.type === "Trailer" && video.official) || videos.find((video) => video.site === "YouTube" && video.type === "Trailer") || null);
+    setLoading(false);
+  }, [fetchCreditsDetailed, fetchDetails, fetchMovieRecommendations, fetchSeasonEpisodes, fetchTVRecommendations, fetchVideos, fetchWatchProviders, id, type, validRoute]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -109,18 +115,13 @@ export default function Watch() {
 
   useEffect(() => {
     if (!detail || !validRoute) return;
-    const entry = {
-      id: Number(id), type,
-      title: detail.title, name: detail.name,
-      poster_path: detail.poster_path,
-      backdrop_path: detail.backdrop_path,
-      vote_average: detail.vote_average,
-      release_date: detail.release_date,
-      first_air_date: detail.first_air_date,
-      media_type: type,
-    };
+    const entry = toListItem(detail, type);
     setContinue((items) => [entry, ...items.filter((item) => !(item.id === entry.id && item.type === entry.type))].slice(0, 20));
   }, [detail, id, setContinue, type, validRoute]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [location.key]);
 
   const changeSeason = async (season) => {
     seasonControllerRef.current?.abort();
@@ -139,14 +140,15 @@ export default function Watch() {
   useEffect(() => () => seasonControllerRef.current?.abort(), []);
 
   const toggleMyList = () => {
-    const item = { id: Number(id), type, title: detail.title, name: detail.name, poster_path: detail.poster_path, vote_average: detail.vote_average, release_date: detail.release_date, first_air_date: detail.first_air_date, media_type: type };
+    const item = toListItem(detail, type);
     setMyList((items) => isSaved ? items.filter((saved) => !(saved.id === item.id && saved.type === item.type)) : [item, ...items]);
+    setToast(isSaved ? "Removed from My List" : "Added to My List");
   };
 
   useEffect(() => {
     if (!showTrailer) return undefined;
-    trailerCloseRef.current?.focus();
     const previousFocus = document.activeElement;
+    trailerCloseRef.current?.focus();
     const onKeyDown = (event) => {
       if (event.key === "Escape") setShowTrailer(false);
       if (event.key === "Tab") {
@@ -163,14 +165,15 @@ export default function Watch() {
   if (loading) return <div className="details-page"><div className="details-skeleton" aria-label="Loading title details"><span /><span /><span /></div></div>;
   if (error || !detail) return <div className="error-page"><div className="error-content"><h1>Title unavailable</h1><p>{error || "This title could not be found."}</p><button className="back-home-btn" onClick={() => loadData()}>Try again</button><Link to="/">Back to browse</Link></div></div>;
 
-  const selectedProviders = providers?.[providerRegion];
+  const providerAvailabilityRegion = [providerRegion, "PH", "US"].find((region) => providers?.[region]) || providerRegion;
+  const selectedProviders = providers?.[providerAvailabilityRegion];
   const availableProviders = ["flatrate", "rent", "buy"].flatMap((category) => (selectedProviders?.[category] || []).map((provider) => ({ ...provider, category })));
   const providerLink = (() => {
     try {
       const candidate = new URL(selectedProviders?.link);
-      return candidate.hostname === "themoviedb.org" || candidate.hostname.endsWith(".themoviedb.org") ? candidate.href : `https://www.themoviedb.org/${type}/${id}/watch?locale=${providerRegion}`;
+      return candidate.hostname === "themoviedb.org" || candidate.hostname.endsWith(".themoviedb.org") ? candidate.href : `https://www.themoviedb.org/${type}/${id}/watch?locale=${providerAvailabilityRegion}`;
     } catch {
-      return `https://www.themoviedb.org/${type}/${id}/watch?locale=${providerRegion}`;
+      return `https://www.themoviedb.org/${type}/${id}/watch?locale=${providerAvailabilityRegion}`;
     }
   })();
   const releaseYear = (detail.release_date || detail.first_air_date || "").slice(0, 4);
@@ -184,6 +187,7 @@ export default function Watch() {
           <div className="details-copy">
             <p className="eyebrow">{type === "movie" ? "Movie" : "TV series"}{releaseYear ? ` · ${releaseYear}` : ""}</p>
             <h1>{title}</h1>
+            {detail.tagline && <p className="details-tagline">“{detail.tagline}”</p>}
             <p className="details-overview">{detail.overview || "No overview is available for this title."}</p>
             <div className="details-facts" aria-label="Title information">
               {detail.vote_average > 0 && <span>★ {detail.vote_average.toFixed(1)} / 10</span>}
@@ -192,6 +196,8 @@ export default function Watch() {
               {detail.status && <span>{detail.status}</span>}
             </div>
             <div className="details-genres">{genres.map((genre) => <span key={genre.id}>{genre.name}</span>)}</div>
+            {type === "movie" && directors.length > 0 && <p className="details-credit-line"><strong>Directed by</strong> {directors.map((director) => director.name).join(", ")}</p>}
+            {type === "tv" && detail.created_by?.length > 0 && <p className="details-credit-line"><strong>Created by</strong> {detail.created_by.map((creator) => creator.name).join(", ")}</p>}
             <div className="details-actions">
               {trailer && <button className="btn btn-primary" onClick={() => setShowTrailer(true)}>▶ Official trailer</button>}
               <a className="btn btn-secondary" href="#where-to-watch">Where to watch</a>
@@ -204,7 +210,7 @@ export default function Watch() {
       <div className="details-content">
         <section id="where-to-watch" className="details-section" aria-labelledby="providers-heading">
           <div className="section-heading"><div><p className="eyebrow">Legal availability</p><h2 id="providers-heading">Where to watch</h2></div>
-            <label className="region-picker">Region <select value={providerRegion} onChange={(event) => setProviderRegion(event.target.value)} aria-label="Select provider region">{[...new Set([getRegion(), "PH", "US"])].map((region) => <option key={region} value={region}>{region}{region === getRegion() ? " · Your region" : ""}</option>)}</select></label>
+            <label className="region-picker">Region <select value={providerRegion} onChange={(event) => setProviderRegion(event.target.value)} aria-label="Select provider region">{["PH", "US"].map((region) => <option key={region} value={region}>{region}</option>)}</select></label>
           </div>
           {availableProviders.length ? <div className="provider-list">{availableProviders.map((provider, index) => <a className="provider-chip" key={`${provider.provider_id}-${provider.category}-${index}`} href={providerLink} target="_blank" rel="noopener noreferrer" aria-label={`${provider.provider_name}, ${provider.category}. View on TMDb`}>
             {provider.logo_path && <img src={`https://image.tmdb.org/t/p/w92${provider.logo_path}`} alt="" width="46" height="46" loading="lazy" />}
@@ -218,10 +224,11 @@ export default function Watch() {
           {episodes.length ? <ol className="episode-list">{episodes.map((episode) => <li key={episode.id}><span className="episode-number">{String(episode.episode_number).padStart(2, "0")}</span><div><h3>{episode.name}</h3><p>{episode.air_date || "Release date unavailable"}{episode.runtime ? ` · ${episode.runtime} min` : ""}</p></div></li>)}</ol> : <p className="muted-copy">Episode details are not available for this season.</p>}
         </section>}
 
-        <section className="details-section"><p className="eyebrow">Credits</p><h2>Cast</h2><p className="cast-list">{cast.length ? cast.join(" · ") : "Cast information is not available."}</p></section>
+        <section className="details-section" aria-labelledby="cast-heading"><p className="eyebrow">Credits</p><h2 id="cast-heading">Cast</h2>{cast.length ? <div className="cast-row" tabIndex="0" aria-label="Cast">{cast.map((person) => <Link className="cast-card" key={person.id} to={`/person?id=${person.id}`}><span className="cast-photo">{person.profile_path ? <img src={`${PROFILE_URL}${person.profile_path}`} alt="" width="96" height="96" loading="lazy" /> : <span aria-hidden="true">{person.name?.split(" ").map((part) => part[0]).join("").slice(0, 2).toUpperCase()}</span>}</span><strong>{person.name}</strong><small>{person.character || "Role unavailable"}</small></Link>)}</div> : <p className="cast-list">Cast information is not available.</p>}</section>
         {similar.length > 0 && <section className="details-section"><div className="section-heading"><div><p className="eyebrow">More like this</p><h2>Similar titles</h2></div></div><div className="similar-grid">{similar.map((item) => <MovieCard key={item.id} item={{ ...item, media_type: type }} onClick={() => navigate(`/watch?type=${type}&id=${item.id}`)} />)}</div></section>}
       </div>
 
+      <Toast message={toast} onDismiss={() => setToast("")} />
       {showTrailer && trailer && <div className="trailer-overlay" role="presentation" onClick={(event) => { if (event.target === event.currentTarget) setShowTrailer(false); }}><section className="trailer-dialog" role="dialog" aria-modal="true" aria-label={`${title} official trailer`}><button ref={trailerCloseRef} className="trailer-close" onClick={() => setShowTrailer(false)} aria-label="Close trailer">×</button><iframe title={`${title} official trailer on YouTube`} src={getOfficialTrailerEmbedUrl(trailer.key)} {...TRAILER_IFRAME_POLICY} /></section></div>}
     </div>
   );

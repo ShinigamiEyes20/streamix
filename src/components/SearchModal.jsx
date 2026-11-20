@@ -45,12 +45,20 @@ export default function SearchModal({ searchResults = [], onSearch, onClose, onI
     const term = debouncedQuery.trim();
     if (term.length >= 2) {
       onSearch?.(term);
-      remember(term);
     } else onSearch?.("");
-  }, [debouncedQuery, onSearch, remember]);
+  }, [debouncedQuery, onSearch]);
 
   const handleKeyDown = (event) => {
     if (event.key === "Escape") { event.preventDefault(); onClose(); return; }
+    if (event.key === "Enter" && event.target === inputRef.current) {
+      if (searchResults[0]) {
+        event.preventDefault();
+        remember(query);
+        onItemClick?.(searchResults[0]);
+        onClose();
+      }
+      return;
+    }
     if (event.key === "ArrowDown" || event.key === "ArrowUp") {
       const cards = [...(dialogRef.current?.querySelectorAll(".results-grid .movie-card") || [])];
       if (!cards.length) return;
@@ -68,7 +76,7 @@ export default function SearchModal({ searchResults = [], onSearch, onClose, onI
     }
   };
 
-  const close = () => onClose();
+  const close = useCallback(() => onClose(), [onClose]);
   return (
     <div className="search-modal-overlay" onClick={(event) => { if (event.target === event.currentTarget) close(); }} onKeyDown={handleKeyDown} role="presentation">
       <section ref={dialogRef} className="search-modal-content" role="dialog" aria-modal="true" aria-label="Search Streamix">
@@ -77,7 +85,7 @@ export default function SearchModal({ searchResults = [], onSearch, onClose, onI
         </div>
         <div id="search-results" className="search-results" aria-live="polite" aria-busy={isSearching}>
           {!query && recent.length > 0 && <div className="recent-searches"><span>Recent searches</span>{recent.map((term) => <button key={term} type="button" onClick={() => setQuery(term)}>{term}</button>)}</div>}
-          {searchResults.length > 0 ? <div className="results-grid-wrapper"><div className="results-grid">{searchResults.map((item) => <MovieCard key={`${item.id}-${item.media_type}`} item={item} onClick={() => { onItemClick?.(item); close(); }} />)}</div>{isSearching && <p className="search-progress" role="status">Updating results…</p>}</div>
+          {searchResults.length > 0 ? <div className="results-grid-wrapper"><div className="results-grid">{searchResults.map((item) => <MovieCard key={`${item.id}-${item.media_type}`} item={item} onClick={() => { remember(query); onItemClick?.(item); close(); }} />)}</div>{isSearching && <p className="search-progress" role="status">Updating results…</p>}</div>
             : isSearching ? <div className="search-state-box" role="status">Searching titles…</div>
             : query.trim().length >= 2 ? <div className="search-state-box empty">No results found for “{query}”.</div>
             : <div className="search-state-box placeholder">Type at least two characters to find movies and TV shows.</div>}

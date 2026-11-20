@@ -14,6 +14,7 @@ const Watch = lazy(() => import("./pages/Watch"));
 const About = lazy(() => import("./pages/About"));
 const Disclaimer = lazy(() => import("./pages/Disclaimer"));
 const MyList = lazy(() => import("./pages/MyList"));
+const Person = lazy(() => import("./pages/Person"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function RouteFallback() {
@@ -78,14 +79,27 @@ function App() {
       setIsSearchOpen(false);
     }
   };
-  const openSearch = (query = "") => { setInitialSearchQuery(query); setIsSearchOpen(true); };
-  const closeSearch = () => {
+  const openSearch = useCallback((query = "") => { setInitialSearchQuery(query); setIsSearchOpen(true); }, []);
+  const closeSearch = useCallback(() => {
     searchController.current?.abort();
     setIsSearchOpen(false);
     setInitialSearchQuery("");
     setSearchResults([]);
     setIsSearching(false);
-  };
+  }, []);
+
+  useEffect(() => {
+    const handleShortcut = (event) => {
+      const target = event.target;
+      const isEditable = target instanceof HTMLElement && ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName);
+      if ((event.key === "/" && !isEditable) || (event.ctrlKey && event.key.toLowerCase() === "k")) {
+        event.preventDefault();
+        openSearch();
+      }
+    };
+    window.addEventListener("keydown", handleShortcut);
+    return () => window.removeEventListener("keydown", handleShortcut);
+  }, [openSearch]);
 
   return (
     <div className="App">
@@ -102,6 +116,7 @@ function App() {
               <Route path="/tv-shows" element={<TVShows />} />
               <Route path="/popular" element={<Popular />} />
               <Route path="/watch" element={<Watch />} />
+              <Route path="/person" element={<Person />} />
               <Route path="/my-list" element={<MyList />} />
               <Route path="/about" element={<About />} />
               <Route path="/disclaimer" element={<Disclaimer />} />

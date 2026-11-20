@@ -5,12 +5,17 @@ import { POSTER_URL } from "../hooks/useTMDB";
 const Modal = memo(({ item, onClose }) => {
   const navigate = useNavigate();
   const dialogRef = useRef(null);
+  const onCloseRef = useRef(onClose);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   useEffect(() => {
     const previousFocus = document.activeElement;
     dialogRef.current?.querySelector("button")?.focus();
     const handleKeyDown = (event) => {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape") onCloseRef.current();
       if (event.key === "Tab") {
         const focusable = [...(dialogRef.current?.querySelectorAll("button, a[href], [tabindex]:not([tabindex='-1'])") || [])];
         if (event.shiftKey && document.activeElement === focusable[0]) { event.preventDefault(); focusable.at(-1)?.focus(); }
@@ -20,7 +25,7 @@ const Modal = memo(({ item, onClose }) => {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => { window.removeEventListener("keydown", handleKeyDown); previousFocus?.focus?.(); };
-  }, [onClose]);
+  }, []);
 
   const handleBackdropClick = useCallback(
     (e) => {

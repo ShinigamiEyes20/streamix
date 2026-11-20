@@ -74,6 +74,32 @@ button, a { touch-action: manipulation; }
 .details-facts, .details-genres, .details-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; margin-top: 1.1rem; }
 .details-facts span, .details-genres span { border: 1px solid rgb(226 232 240 / 30%); border-radius: 999px; padding: .4rem .8rem; color: #f8fafc; }
 .details-genres span { border-color: rgb(103 232 249 / 36%); color: #cffafe; }
+.details-tagline { margin: .75rem 0 0; font-size: 1.05rem; font-style: italic; color: #cbd5e1; }
+.details-credit-line { margin: .8rem 0 0; color: #cbd5e1; }
+.trending-rows.rows-loading { opacity: .42; transition: opacity .2s ease; }
+.cast-row { display: flex; gap: 1rem; overflow-x: auto; padding-bottom: .75rem; scroll-snap-type: x mandatory; scrollbar-width: thin; }
+.cast-card { flex: 0 0 132px; display: flex; flex-direction: column; align-items: center; text-align: center; color: #f8fafc; text-decoration: none; scroll-snap-align: start; }
+.cast-card strong { margin-top: .55rem; }
+.cast-card small { margin-top: .2rem; color: #94a3b8; }
+.cast-photo { width: 96px; height: 96px; border-radius: 50%; overflow: hidden; display: grid; place-items: center; background: #1e293b; color: #cffafe; font-size: 1.35rem; }
+.cast-photo img { width: 96px; height: 96px; object-fit: cover; }
+.toast { position: fixed; right: 1.25rem; bottom: 1.25rem; z-index: 1000; padding: .8rem 1rem; border-radius: var(--radius-sm); background: #172033; border: 1px solid rgb(103 232 249 / 35%); color: #f8fafc; box-shadow: var(--shadow-panel); }
+.person-page { min-height: 70vh; width: min(1280px, 92%); margin: 0 auto; padding: 7rem 0 5rem; }
+.person-header { display: grid; grid-template-columns: 185px minmax(0, 1fr); gap: 2.5rem; align-items: start; }
+.person-header > img, .person-avatar-fallback { width: 185px; height: 278px; border-radius: var(--radius-md); object-fit: cover; }
+.person-avatar-fallback { display: grid; place-items: center; background: #1e293b; font-size: 3rem; }
+.person-copy h1 { margin: .35rem 0 1rem; font-size: clamp(2.2rem, 5vw, 4.5rem); }
+.person-facts { display: flex; flex-wrap: wrap; gap: 1rem; color: #cbd5e1; }
+.person-biography { max-width: 68ch; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 6; overflow: hidden; color: #dbeafe; }
+.person-biography.expanded { display: block; }
+.text-button { margin-top: .5rem; padding: 0; border: 0; background: none; color: #67e8f9; cursor: pointer; }
+.person-known-for { margin-top: 3rem; }
+@media (max-width: 600px) {
+  .person-page { padding-top: 5.5rem; }
+  .person-header { grid-template-columns: 96px minmax(0, 1fr); gap: 1rem; }
+  .person-header > img, .person-avatar-fallback { width: 96px; height: 144px; }
+  .person-copy h1 { font-size: 2rem; }
+}
 .details-actions .btn { display: inline-flex; align-items: center; justify-content: center; padding: .65rem 1.1rem; border-radius: 999px; }
 .details-actions .btn-secondary { background: rgb(15 23 42 / 82%); }
 .details-content, .my-list-page { width: min(1280px, 92%); margin: 0 auto; padding: 2.5rem 0 5rem; }

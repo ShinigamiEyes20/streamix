@@ -7,7 +7,12 @@ const EMPTY_ARRAY = Object.freeze([]);
 function readValue(key, fallback) {
   try {
     const parsed = JSON.parse(localStorage.getItem(key));
-    if (parsed?.version === VERSION && Array.isArray(parsed.value)) return parsed.value;
+    if (parsed?.version === VERSION && Object.prototype.hasOwnProperty.call(parsed, "value")) {
+      const matchesFallbackType = Array.isArray(fallback)
+        ? Array.isArray(parsed.value)
+        : typeof parsed.value === typeof fallback;
+      if (matchesFallbackType) return parsed.value;
+    }
   } catch {
     // Use defaults when storage is disabled or has invalid data.
   }

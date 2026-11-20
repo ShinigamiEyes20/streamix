@@ -1,6 +1,17 @@
 # Streamix
 
+**Live:** https://streamix-five-chi.vercel.app
+
 Streamix is a responsive movie and TV discovery app built with React and Vite. It uses TMDb metadata to help people explore titles, official trailers, and regional availability from licensed services. Streamix does not host or play media.
+
+## Screenshots
+
+Screenshots placeholder:
+
+- `docs/screenshots/home.png`
+- `docs/screenshots/details.png`
+- `docs/screenshots/person.png`
+- `docs/screenshots/mobile.png`
 
 ## Features
 
